@@ -1,0 +1,63 @@
+☰
+SAMSIC
+EDIT
+SAMSIC AIRPORT
+GSE DAILY INSPECTION
+GROUND SUPPORT EQUIPMENT • PRE-OPERATIONAL SAFETY CHECK • ESSA.SFO.01
+0
+TOTAL GSE
+0
+PASS
+0
+ISSUES
+0
+OUT OF SVC
+INSPECTING AGENT
+
+JOB ROLE
+
+SHIFT
+          Select shift
+          AM (06:00-14:00)
+          PM (14:00-22:00)
+          Overnight (22:00-06:00)
+        
+STATION
+          SFO
+          ORD
+        
+WEATHER
+
+INSPECTION DATE
+—
+◀ ▶
+📅
+TODAY NEW REPORT
+
+CONNECTING…
+
+＋
+ADD GSE
+📄
+PDF
+🖨
+PRINT
+🌙
+🔒
+💾
+SAVE
+
+
+FILTER BY GROUP
+          All groups
+        
+FILTER BY STATUS
+          All status
+          Passing only
+          With issues
+          Out of service
+          Not inspected
+        
+
+SAMSIC AIRPORT — CONFIDENTIAL GSE INSPECTION — ESSA.SFO.01 V01
+ALL INSPECTION DAYS SAVED LOCALLY ON THIS DEVICE.
