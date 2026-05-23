@@ -58,12 +58,14 @@ window.__fbReady = (async()=>{
     const appMod = await import("https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js");
     const fsMod  = await import("https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js");
     const authMod= await import("https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js");
+    const stMod  = await import("https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js");
     const app = appMod.initializeApp(window.__firebaseConfig);
     const db = fsMod.getFirestore(app);
     const auth = authMod.getAuth(app);
+    const storage = stMod.getStorage(app);
     // Sign in anonymously so rules can later restrict to signed-in users
     try{ await authMod.signInAnonymously(auth); }catch(e){ console.warn('anon auth failed',e); }
-    window.__fb = {db, auth, ...fsMod, ...authMod, initialized:true};
+    window.__fb = {db, auth, storage, ...fsMod, ...authMod, ...stMod, initialized:true};
     return window.__fb;
   }catch(err){
     console.warn('Firebase load failed',err);
@@ -100,7 +102,95 @@ window.__fbReady = (async()=>{
   --shadow-card:0 12px 30px -8px rgba(0,0,0,.6), 0 0 0 1px rgba(139,92,246,.10), inset 0 1px 0 rgba(255,255,255,.04);
   --shadow-red:0 12px 30px -6px rgba(239,68,68,.45);
   --shadow-violet:0 12px 30px -6px rgba(139,92,246,.45);
+  --page-bg:#070a24;
+  --page-grid:rgba(139,92,246,.04);
+  --watermark:rgba(139,92,246,0.08);
 }
+/* ───── LIGHT THEME OVERRIDES ───── */
+html[data-theme="light"]{
+  --ink:#ffffff;
+  --ink-2:#f6f7fb;
+  --ink-3:#eef0fb;
+  --paper:#ffffff;
+  --paper-dim:#f4f4f4;
+  --line:rgba(15,23,42,.08);
+  --line-2:rgba(124,58,237,.25);
+  --txt:#1e1b4b;
+  --txt-dim:#475569;
+  --txt-faint:#64748b;
+  --violet:#7c3aed;
+  --violet-2:#6d28d9;
+  --shadow-lg:0 20px 45px -12px rgba(30,27,75,.25), 0 0 0 1px rgba(124,58,237,.10);
+  --shadow-card:0 10px 22px -8px rgba(30,27,75,.18), 0 0 0 1px rgba(124,58,237,.08);
+  --shadow-violet:0 10px 22px -6px rgba(124,58,237,.30);
+  --page-bg:#f7f8ff;
+  --page-grid:rgba(124,58,237,.06);
+  --watermark:rgba(124,58,237,0.07);
+}
+html[data-theme="light"] body{
+  color:var(--txt);
+  background:
+    radial-gradient(1200px 700px at 92% -8%,rgba(124,58,237,.10),transparent 55%),
+    radial-gradient(800px 600px at -8% 12%,rgba(6,182,212,.07),transparent 60%),
+    radial-gradient(700px 500px at 50% 110%,rgba(236,72,153,.06),transparent 65%),
+    linear-gradient(180deg,#ffffff 0%,#f4f5fb 60%) !important;
+}
+html[data-theme="light"] body, html[data-theme="light"] html{background:var(--page-bg) !important}
+html[data-theme="light"] .header{
+  background:linear-gradient(135deg,#ffffff,#f5f6ff 55%,#eef0fb) !important;
+  border-color:rgba(124,58,237,.18) !important;
+}
+html[data-theme="light"] .title-block h1{color:#1e1b4b !important}
+html[data-theme="light"] .field input,
+html[data-theme="light"] .field select,
+html[data-theme="light"] .field textarea{color:#1e1b4b !important;color-scheme:light}
+html[data-theme="light"] .field{background:#ffffff;border-color:rgba(124,58,237,.18)}
+html[data-theme="light"] .field input::placeholder{color:#94a3b8}
+html[data-theme="light"] .tabs{background:#ffffff;border-color:rgba(124,58,237,.14)}
+html[data-theme="light"] .tab{color:#475569}
+html[data-theme="light"] .tab:hover{background:rgba(124,58,237,.06);color:#1e1b4b}
+html[data-theme="light"] .tab.active{color:#fff}
+html[data-theme="light"] .kpi{background:#ffffff;border-color:rgba(124,58,237,.14)}
+html[data-theme="light"] .datebar{background:#ffffff;border-color:rgba(124,58,237,.14)}
+html[data-theme="light"] .datebar input[type="date"]{background:#ffffff;color:#1e1b4b;color-scheme:light;border-color:rgba(124,58,237,.22)}
+html[data-theme="light"] .btn{background:#ffffff;color:#1e1b4b;border-color:rgba(124,58,237,.22)}
+html[data-theme="light"] .btn:hover{background:#f1f2ff}
+html[data-theme="light"] .btn-ghost{background:transparent;color:#475569}
+html[data-theme="light"] .search input{background:#ffffff;color:#1e1b4b;border-color:rgba(124,58,237,.22)}
+html[data-theme="light"] .search input::placeholder{color:#94a3b8}
+html[data-theme="light"] .filter-bar .field{background:#ffffff}
+html[data-theme="light"] .modal{background:#ffffff;color:#1e1b4b;border-color:rgba(124,58,237,.20)}
+html[data-theme="light"] .modal-bg{background:rgba(15,23,42,.55)}
+html[data-theme="light"] .menu-panel{background:#ffffff;color:#1e1b4b;border-color:rgba(124,58,237,.20)}
+html[data-theme="light"] .menu-item{color:#1e1b4b}
+html[data-theme="light"] .menu-item:hover{background:#f1f2ff}
+html[data-theme="light"] .settings-card{background:#ffffff;color:#1e1b4b;border-color:rgba(124,58,237,.18)}
+html[data-theme="light"] .card{background:#ffffff;color:#1e1b4b;border-color:rgba(124,58,237,.14)}
+html[data-theme="light"] .eq-card{background:#ffffff;color:#1e1b4b;border-color:rgba(124,58,237,.14)}
+html[data-theme="light"] .group-section{background:transparent}
+html[data-theme="light"] .group-header{background:#ffffff;border-color:rgba(124,58,237,.14)}
+html[data-theme="light"] .group-title h2{color:#1e1b4b}
+html[data-theme="light"] .group-title p{color:#64748b}
+html[data-theme="light"] .gse-name,html[data-theme="light"] .gse-ref{color:#1e1b4b !important;background:transparent !important}
+html[data-theme="light"] .inspector-row input{background:#ffffff;color:#1e1b4b;border-color:rgba(124,58,237,.18)}
+html[data-theme="light"] .suggest-box{background:#ffffff;color:#1e1b4b;border-color:rgba(124,58,237,.22)}
+html[data-theme="light"] .suggest-item{color:#1e1b4b}
+html[data-theme="light"] .suggest-item:hover{background:#f1f2ff}
+html[data-theme="light"] body::before{background-image:linear-gradient(rgba(124,58,237,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,237,.04) 1px,transparent 1px)}
+html[data-theme="light"] body::after{opacity:.35}
+html[data-theme="light"] .qr-form-wrap,html[data-theme="light"] .qr-view{background:#f7f8ff;color:#1e1b4b}
+html[data-theme="light"] textarea{color:#1e1b4b}
+html[data-theme="light"] .footer{color:#64748b}
+/* Theme toggle pill in the menu */
+.theme-toggle{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 14px;border-radius:999px;font-weight:800;font-size:12px;letter-spacing:1px;text-transform:uppercase;
+  background:rgba(139,92,246,.14);color:#a78bfa;border:1px solid rgba(139,92,246,.30);cursor:pointer;
+  font-family:inherit;transition:all .15s;
+}
+.theme-toggle:hover{background:rgba(139,92,246,.22);color:#fff}
+html[data-theme="light"] .theme-toggle{background:#f1f2ff;color:#4c1d95;border-color:rgba(124,58,237,.25)}
+html[data-theme="light"] .theme-toggle:hover{background:#e9eaff}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
 html,body{margin:0;padding:0;background:#070a24}
@@ -137,6 +227,15 @@ body::after{
   margin:0 -18px;padding:14px 18px 6px;
   background:linear-gradient(180deg,#070a24 0%,#070a24 78%,rgba(7,10,36,0) 100%);
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  will-change:padding;
+  transition:padding .18s ease;
+}
+.sticky-top .header,
+.sticky-top .logo,
+.sticky-top .kpi,
+.sticky-top .datebar,
+.sticky-top .title-block h1{
+  transition:padding .18s ease, height .18s ease, width .18s ease, font-size .18s ease, min-width .18s ease;
 }
 .sticky-top.compact .header{padding:10px 18px}
 .sticky-top.compact .header-row{gap:10px}
@@ -363,6 +462,30 @@ body::after{
 }
 .tab.active .badge{background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff}
 .tab:not(.active) .badge{background:rgba(139,92,246,.15);color:#a78bfa}
+
+/* ====== ALWAYS-VISIBLE TOOLBAR (replaces hamburger) ====== */
+.toolbar-bar{margin-top:14px}
+.toolbar-actions{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  margin:6px 0 14px;padding:10px 12px;border-radius:14px;
+  background:rgba(14,18,53,.65);border:1px solid rgba(139,92,246,.25);
+  box-shadow:var(--shadow-card);
+}
+.toolbar-actions .global-search{flex:1 1 280px;min-width:220px}
+.toolbar-actions .global-search input{
+  width:100%;padding:11px 14px;background:rgba(7,10,36,.7);color:#fff;border:1px solid rgba(139,92,246,.30);
+  border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;outline:none;
+}
+.toolbar-actions .global-search input:focus{border-color:var(--violet);background:rgba(14,18,53,.9)}
+.toolbar-actions .btn{padding:10px 14px;font-size:12.5px}
+html[data-theme="light"] .toolbar-actions{background:#ffffff;border-color:rgba(124,58,237,.18)}
+html[data-theme="light"] .toolbar-actions .global-search input{background:#ffffff;color:#1e1b4b;border-color:rgba(124,58,237,.22)}
+html[data-theme="light"] .toolbar-actions .global-search input::placeholder{color:#94a3b8}
+@media(max-width:720px){
+  .toolbar-actions{padding:8px}
+  .toolbar-actions .btn{padding:9px 11px;font-size:11.5px}
+  .toolbar-actions .btn .ic{font-size:13px}
+}
 
 /* ====== ACTIONS ====== */
 .actions{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 16px}
@@ -615,6 +738,64 @@ body::after{
   border:1px solid rgba(227,6,19,.25);border-radius:10px;
 }
 .oos-toggle .lbl{font-weight:900;font-size:12px;color:var(--red-2);letter-spacing:1px;text-transform:uppercase}
+.oos-sticky-badge{
+  display:inline-flex;align-items:center;gap:5px;font-size:9.5px;font-weight:900;letter-spacing:1.5px;
+  background:linear-gradient(135deg,#ef4444,#7f1d1d);color:#fff;padding:5px 9px;border-radius:6px;text-transform:uppercase;
+  box-shadow:0 0 0 1px rgba(239,68,68,.4),0 6px 14px -4px rgba(239,68,68,.45);
+}
+
+/* ====== CARRY-OVER (persistent issues) ====== */
+.carryover-banner{
+  display:block;margin:8px 0 12px;padding:11px 14px;border-radius:10px;
+  background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(239,68,68,.10));
+  border:1px solid rgba(245,158,11,.50);color:#fde68a;
+  font-size:12.5px;line-height:1.45;font-weight:600;letter-spacing:.3px;
+}
+.carryover-banner b{color:#fff;letter-spacing:.5px}
+.carryover-banner .carryover-list{display:inline;color:#fde68a;font-weight:700;margin:0 4px}
+html[data-theme="light"] .carryover-banner{
+  background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(239,68,68,.07));
+  color:#7c2d12;border-color:rgba(245,158,11,.55);
+}
+html[data-theme="light"] .carryover-banner b{color:#7c2d12}
+html[data-theme="light"] .carryover-banner .carryover-list{color:#7c2d12}
+
+/* Per-item indicator: highlight the item row when fail was inherited (not yet verified today) */
+.item.inherited-fail{
+  background:linear-gradient(90deg,rgba(245,158,11,.08),transparent 60%) !important;
+  box-shadow:inset 3px 0 0 0 var(--warn);
+}
+.inh-pill{
+  display:inline-block;font-size:10px;margin-left:6px;padding:2px 6px;border-radius:999px;
+  background:rgba(245,158,11,.22);color:#fde68a;border:1px solid rgba(245,158,11,.45);font-weight:800;
+}
+html[data-theme="light"] .inh-pill{background:rgba(245,158,11,.15);color:#7c2d12;border-color:rgba(245,158,11,.5)}
+
+/* ====== PMs FILES SECTION ====== */
+.pms-group .group-header{margin-top:10px}
+.pms-group.collapsed .pms-eq-list{display:none}
+.pms-eq-list{display:flex;flex-direction:column;gap:8px;margin-top:6px;padding:0 4px 12px}
+.pms-eq{
+  background:rgba(14,18,53,.6);border:1px solid rgba(139,92,246,.18);border-radius:12px;
+  padding:12px 14px;
+}
+html[data-theme="light"] .pms-eq{background:#ffffff;border-color:rgba(124,58,237,.18)}
+.pms-eq-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.pms-eq-title b{font-family:'JetBrains Mono','Manrope',sans-serif;color:#fff;font-size:14px;letter-spacing:.5px}
+html[data-theme="light"] .pms-eq-title b{color:#1e1b4b}
+.pms-files{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.pms-file-row{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:9px 12px;background:rgba(7,10,36,.55);border:1px solid var(--line);border-radius:10px;
+}
+html[data-theme="light"] .pms-file-row{background:#f6f7fb;border-color:rgba(124,58,237,.10)}
+.pms-file-info{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.pms-file-icon{font-size:18px}
+.pms-file-name{font-weight:700;color:#fff;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:42vw}
+html[data-theme="light"] .pms-file-name{color:#1e1b4b}
+.pms-file-meta{font-size:10.5px;color:var(--txt-dim);letter-spacing:.5px;margin-top:2px}
+.pms-file-actions{display:flex;gap:6px;flex-shrink:0}
+.pms-empty{font-size:12px;color:var(--txt-dim);font-style:italic;padding:8px 4px}
 .switch{
   position:relative;width:46px;height:26px;background:#1a1a1a;border:1px solid var(--line);
   border-radius:999px;cursor:pointer;transition:all .15s;
@@ -806,32 +987,196 @@ body.pdf-export .group-section.collapsed .group-grid{display:grid !important}
   input,select,textarea{font-size:16px !important} /* prevent iOS zoom-on-focus */
 }
 
-/* ───── QR Code modal ───── */
+/* ───── Burger Menu (new top-right nav) ───── */
+.menu-trigger{
+  position:absolute;top:18px;right:20px;z-index:35;
+  display:inline-flex;align-items:center;justify-content:center;
+  width:50px;height:50px;border-radius:14px;cursor:pointer;
+  background:linear-gradient(135deg,rgba(139,92,246,.32),rgba(236,72,153,.25));
+  border:1px solid rgba(139,92,246,.55);
+  box-shadow:0 8px 18px -4px rgba(139,92,246,.5);
+  color:#fff;font-size:22px;font-weight:900;line-height:1;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.menu-trigger:hover{transform:translateY(-2px);box-shadow:0 14px 24px -6px rgba(139,92,246,.6)}
+.menu-trigger:active{transform:scale(.94)}
+
+/* Hide the old tab strip — replaced by the menu */
+.tabs{display:none !important}
+
+/* Floating menu panel */
+.menu-bg{
+  position:fixed;inset:0;z-index:100;background:rgba(7,10,36,.7);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  display:none;align-items:flex-start;justify-content:flex-end;
+  padding:80px 24px 24px;
+}
+.menu-bg.show{display:flex}
+.menu-panel{
+  width:320px;max-width:90vw;
+  background:linear-gradient(180deg,rgba(20,25,75,.97),rgba(10,14,46,.97));
+  border:1px solid rgba(139,92,246,.45);
+  border-radius:20px;padding:16px;
+  box-shadow:0 24px 60px -10px rgba(0,0,0,.85),0 0 0 1px rgba(139,92,246,.2) inset;
+  animation:menuSlide .25s cubic-bezier(.3,1.2,.5,1);
+}
+@keyframes menuSlide{from{opacity:0;transform:translateY(-8px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.menu-panel h4{
+  margin:0 0 10px 4px;font-size:10px;letter-spacing:2.2px;
+  text-transform:uppercase;color:var(--violet-2);font-weight:800;
+}
+.menu-item{
+  display:flex;align-items:center;gap:12px;
+  width:100%;padding:13px 14px;margin-bottom:6px;
+  border:1px solid rgba(139,92,246,.18);
+  background:rgba(255,255,255,.03);color:#fff;
+  border-radius:12px;cursor:pointer;font-size:14px;font-weight:600;
+  text-align:left;transition:all .15s ease;
+}
+.menu-item:hover{background:rgba(139,92,246,.18);border-color:rgba(139,92,246,.55);transform:translateX(-2px)}
+.menu-item .ic{font-size:18px;flex-shrink:0;width:24px;text-align:center}
+.menu-item .lk{margin-left:auto;font-size:10px;color:var(--warn);font-weight:800;letter-spacing:1px}
+.menu-item.active{
+  background:linear-gradient(135deg,rgba(139,92,246,.35),rgba(236,72,153,.18));
+  border-color:rgba(167,139,250,.7);
+}
+.menu-close{
+  display:block;width:100%;margin-top:8px;padding:10px;
+  background:transparent;border:1px solid rgba(255,255,255,.15);
+  border-radius:10px;color:#888;cursor:pointer;font-weight:700;font-size:12px;letter-spacing:1px;
+}
+.menu-close:hover{color:#fff;border-color:rgba(255,255,255,.35)}
+
+/* ───── Inspector autocomplete dropdown ───── */
+.field{position:relative}
+.suggest-box{
+  position:absolute;top:100%;left:0;right:0;z-index:50;
+  background:linear-gradient(180deg,rgba(20,25,75,.97),rgba(10,14,46,.97));
+  border:1px solid rgba(139,92,246,.45);
+  border-radius:12px;margin-top:4px;
+  max-height:220px;overflow:auto;
+  box-shadow:0 18px 40px -8px rgba(0,0,0,.7);
+  display:none;
+}
+.suggest-box.show{display:block}
+.suggest-item{
+  padding:10px 14px;cursor:pointer;color:#fff;
+  border-bottom:1px solid rgba(139,92,246,.1);
+  display:flex;flex-direction:column;gap:3px;
+}
+.suggest-item:hover,.suggest-item.active{background:rgba(139,92,246,.25)}
+.suggest-item .nm{font-weight:700;font-size:13.5px}
+.suggest-item .rl{font-size:11px;color:var(--violet-2);letter-spacing:.6px}
+.suggest-item.empty{color:#888;font-style:italic;cursor:default}
+.suggest-item.empty:hover{background:transparent}
+
+/* ───── Equipment station tabs (SFO / ORD) ───── */
+.station-tabs{
+  display:flex;gap:8px;margin:0 0 16px;
+  padding:6px;background:rgba(15,20,55,.6);
+  border:1px solid rgba(139,92,246,.18);border-radius:14px;
+}
+.station-tab{
+  flex:1;padding:12px 16px;border-radius:10px;border:none;cursor:pointer;
+  background:transparent;color:var(--txt-dim);font-weight:800;font-size:13px;
+  letter-spacing:1.5px;text-transform:uppercase;
+  transition:all .15s ease;
+}
+.station-tab.active{
+  background:linear-gradient(135deg,var(--violet),var(--pink));
+  color:#fff;box-shadow:0 6px 14px -4px rgba(139,92,246,.5);
+}
+.station-tab:hover:not(.active){background:rgba(139,92,246,.12);color:#fff}
+
+/* ───── QR Code preview modal ───── */
 .qr-modal-body{display:flex;flex-direction:column;align-items:center;gap:14px;padding:8px 0}
-.qr-modal-body .qr-canvas-wrap{background:#fff;padding:12px;border-radius:12px}
-.qr-modal-body .qr-info{color:#cfd2ee;font-size:13px;text-align:center;max-width:300px}
+.qr-modal-body .qr-canvas-wrap{
+  background:#fff;padding:18px;border-radius:14px;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);
+}
+.qr-modal-body .qr-info{color:#cfd2ee;font-size:13px;text-align:center}
 .qr-modal-body .qr-info b{color:#fff;font-size:15px;display:block;margin-bottom:4px}
 .qr-modal-body .qr-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+
 /* ───── Standalone QR-form view (when scanned) ───── */
-.qr-view{display:none;position:fixed;inset:0;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);z-index:9999;overflow-y:auto;padding:20px 16px 40px}
+.qr-view{
+  display:none;
+  position:fixed;inset:0;z-index:9999;
+  background:linear-gradient(180deg,#0a0e2e 0%,#070a24 60%);
+  overflow:auto;padding:24px;
+}
 .qr-view.show{display:block}
-.qr-form-wrap{max-width:480px;margin:0 auto;background:rgba(255,255,255,.05);border:1px solid rgba(139,92,246,.3);border-radius:16px;padding:24px}
-.qr-form-wrap h1{font-size:22px;font-weight:800;color:#fff;margin:0 0 4px}
-.qr-form-wrap .sub{color:var(--violet-2,#a78bfa);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:18px;font-weight:700}
+.qr-form-wrap{
+  max-width:520px;margin:0 auto;
+  background:linear-gradient(135deg,rgba(20,25,75,.95),rgba(10,14,46,.95));
+  border:1px solid rgba(139,92,246,.35);
+  border-radius:22px;padding:26px;
+  box-shadow:0 30px 70px -10px rgba(0,0,0,.7);
+}
+.qr-form-wrap h1{
+  font-family:'Manrope';font-weight:900;margin:0 0 6px;
+  font-size:24px;letter-spacing:-.5px;color:#fff;
+}
+.qr-form-wrap .sub{color:var(--violet-2);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:18px;font-weight:700}
 .qr-form-wrap .field{margin-bottom:14px}
-.qr-form-wrap .field label{display:block;font-size:11px;color:#a78bfa;letter-spacing:1px;text-transform:uppercase;font-weight:700;margin-bottom:6px}
-.qr-form-wrap input,.qr-form-wrap select,.qr-form-wrap textarea{width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(139,92,246,.35);border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;box-sizing:border-box}
+.qr-form-wrap .field label{
+  display:block;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--txt-dim);font-weight:700;margin-bottom:6px;
+}
+.qr-form-wrap input,.qr-form-wrap select,.qr-form-wrap textarea{
+  width:100%;padding:13px 14px;border-radius:11px;
+  background:rgba(7,10,36,.6);border:1px solid rgba(139,92,246,.3);
+  color:#fff;font-size:14px;font-family:inherit;
+}
 .qr-form-wrap textarea{resize:vertical;min-height:80px}
-.qr-photo-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.qr-photo-preview .ph{position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:1px solid rgba(139,92,246,.3)}
+.qr-photo-preview{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));
+  gap:6px;margin-top:8px;
+}
+.qr-photo-preview .ph{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid rgba(139,92,246,.3)}
 .qr-photo-preview .ph img{width:100%;height:100%;object-fit:cover}
-.qr-photo-preview .ph button{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.qr-submit-btn{width:100%;background:linear-gradient(135deg,#7c3aed,#db2777);color:#fff;border:none;padding:14px;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;margin-top:8px;letter-spacing:.5px}
+.qr-photo-preview .ph button{
+  position:absolute;top:2px;right:2px;width:22px;height:22px;border-radius:50%;
+  border:none;background:rgba(239,68,68,.9);color:#fff;cursor:pointer;font-weight:900;
+}
+.qr-submit-btn{
+  width:100%;padding:16px;border:none;border-radius:12px;cursor:pointer;
+  background:linear-gradient(135deg,var(--violet),var(--pink));
+  color:#fff;font-weight:900;font-size:14px;letter-spacing:1.5px;text-transform:uppercase;
+  margin-top:8px;
+}
 .qr-submit-btn:disabled{opacity:.5;cursor:wait}
 .qr-success{text-align:center;padding:40px 20px;color:#fff}
 .qr-success .check{font-size:60px;margin-bottom:10px}
 .qr-success h2{font-size:28px;margin:0 0 8px}
-.qr-success p{color:#a78bfa}
+.qr-success p{color:var(--violet-2)}
+
+/* ───── QR Reports list inside History ───── */
+.qr-report-card{
+  background:rgba(20,25,75,.5);border:1px solid rgba(139,92,246,.2);
+  border-radius:12px;padding:12px 14px;margin-bottom:10px;
+}
+.qr-report-card .hd{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:8px;flex-wrap:wrap;margin-bottom:6px;
+}
+.qr-report-card .hd b{color:#fff;font-size:13.5px}
+.qr-report-card .hd .pill{font-size:10px;letter-spacing:1.2px}
+.qr-report-card .meta{color:var(--txt-dim);font-size:12px;line-height:1.5}
+.qr-report-card .meta b{color:#cfd2ee;font-weight:700}
+.qr-report-card .photos{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.qr-report-card .photos img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid rgba(139,92,246,.3)}
+
+/* ───── Inspector master list (in Settings) ───── */
+.inspector-row{
+  display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;
+  padding:8px;border:1px solid rgba(139,92,246,.15);border-radius:10px;margin-bottom:6px;
+  background:rgba(15,20,55,.4);
+}
+.inspector-row input{
+  padding:9px 11px;background:rgba(7,10,36,.6);border:1px solid rgba(139,92,246,.2);
+  border-radius:8px;color:#fff;font-size:13px;
+}
 </style>
 </head>
 <body>
@@ -846,6 +1191,7 @@ body.pdf-export .group-section.collapsed .group-grid{display:grid !important}
   <!-- HEADER -->
   <div class="sticky-top" id="sticky-top">
   <header class="header">
+    <button class="menu-trigger" id="menu-trigger" onclick="openMenu()" title="More tools (backup, restore, email PDF, reset day)" aria-label="More tools">☰</button>
     <svg class="aviation-deco" viewBox="0 0 100 100" fill="none">
       <defs>
         <linearGradient id="planeGrad" x1="0" y1="0" x2="1" y2="1">
@@ -879,8 +1225,12 @@ body.pdf-export .group-section.collapsed .group-grid{display:grid !important}
     </div>
 
     <div class="meta-row">
-      <div class="field"><label>Inspecting Agent</label><input id="agent-name" placeholder="Full name" autocomplete="name"></div>
-      <div class="field"><label>Employee ID</label><input id="agent-id" placeholder="ID #"></div>
+      <div class="field">
+        <label>Inspecting Agent</label>
+        <input id="agent-name" placeholder="Start typing name…" autocomplete="off" oninput="onAgentInput()" onfocus="onAgentInput()" onblur="setTimeout(closeAgentSuggest,180)">
+        <div class="suggest-box" id="agent-suggest"></div>
+      </div>
+      <div class="field"><label>Job Role</label><input id="agent-role" placeholder="e.g. GSE Mechanic" readonly style="background:rgba(7,10,36,.4);color:var(--violet-2)"></div>
       <div class="field"><label>Shift</label>
         <select id="insp-shift">
           <option value="">Select shift</option>
@@ -895,7 +1245,6 @@ body.pdf-export .group-section.collapsed .group-grid{display:grid !important}
           <option>ORD</option>
         </select>
       </div>
-      <div class="field"><label>Supervisor</label><input id="insp-super" placeholder="Supervisor name"></div>
       <div class="field"><label>Weather</label><input id="insp-weather" placeholder="e.g. Clear, 72°F"></div>
     </div>
 
@@ -913,13 +1262,24 @@ body.pdf-export .group-section.collapsed .group-grid{display:grid !important}
     </div>
   </header>
 
-  <!-- TABS -->
-  <div class="tabs" id="tabs">
+  <!-- TOOLBAR (always visible — replaces hamburger menu) -->
+  <div class="tabs toolbar-bar" id="tabs">
     <button class="tab active" data-tab="inspection">📋 Inspection <span class="badge" id="tab-badge-insp">0</span></button>
     <button class="tab" data-tab="analytics">📊 Analytics</button>
     <button class="tab" data-tab="history">🗓 History <span class="badge" id="tab-badge-hist">0</span></button>
+    <button class="tab" data-tab="qrreports">📱 QR Reports</button>
     <button class="tab" data-tab="equipment">🚚 Equipment <span class="badge" id="tab-badge-eq">0</span></button>
+    <button class="tab" data-tab="pms">📂 PMs Files</button>
     <button class="tab" data-tab="settings">⚙ Settings</button>
+  </div>
+  <!-- Quick-action toolbar (also always visible). Each button is a single tap. -->
+  <div class="toolbar-actions" id="toolbar-actions">
+    <div class="search global-search"><input id="global-search-input" placeholder="🔍 Search any GSE — SFBT12, ET1004, name…" autocomplete="off"></div>
+    <button class="btn btn-primary" onclick="addNewGSE()" title="Add GSE — auto-generates a QR"><span class="ic">＋</span> Add GSE</button>
+    <button class="btn" onclick="exportPDF()"><span class="ic">📄</span> PDF</button>
+    <button class="btn" onclick="window.print()"><span class="ic">🖨</span> Print</button>
+    <button class="btn" onclick="toggleTheme()" title="Switch dark/light"><span class="ic" id="toolbar-theme-ic">🌙</span></button>
+    <button class="btn btn-primary" onclick="lockAdminNow()" title="Unlock admin (enter password)"><span class="ic">🔒</span></button>
   </div>
   </div><!-- /sticky-top -->
 
@@ -927,24 +1287,13 @@ body.pdf-export .group-section.collapsed .group-grid{display:grid !important}
   <section id="tab-inspection">
     <div class="sub-sticky">
     <div class="actions">
-      <button class="btn btn-primary" onclick="addNewGSE()"><span class="ic">＋</span> Add GSE</button>
-      <button class="btn" onclick="saveData(true)"><span class="ic">💾</span> Save</button>
-      <button class="btn" onclick="window.print()"><span class="ic">🖨</span> Print</button>
-      <button class="btn btn-red" onclick="exportPDF()"><span class="ic">📄</span> Save as PDF</button>
-      <button class="btn btn-outline-red" onclick="emailReport()"><span class="ic">✉</span> Email PDF</button>
+      <button class="btn btn-red" onclick="saveData(true)" style="font-weight:900;letter-spacing:1.5px"><span class="ic">💾</span> Save</button>
       <span class="spacer"></span>
-      <button class="btn btn-ghost" onclick="expandAll(true)">Expand All</button>
-      <button class="btn btn-ghost" onclick="expandAll(false)">Collapse</button>
-      <button class="btn btn-ghost" onclick="toggleAllGroups(true)">Open Groups</button>
-      <button class="btn btn-ghost" onclick="toggleAllGroups(false)">Close Groups</button>
-      <button class="btn btn-ghost" onclick="confirmReset()"><span class="ic">⟲</span> Reset Day</button>
-      <button class="btn btn-ghost" onclick="exportJSON()">Backup</button>
-      <button class="btn btn-ghost" onclick="document.getElementById('import-file').click()">Restore</button>
       <input id="import-file" type="file" accept="application/json" style="display:none" onchange="importJSON(event)">
     </div>
 
     <div class="filter-bar">
-      <div class="search"><input id="search-input" placeholder="Search by name or ref #..." oninput="renderInspection()"></div>
+      <div class="search"><input id="search-input" placeholder="Search any GSE — type a full ref like SFBT12, ET1004…" oninput="renderInspection()"></div>
       <div class="field"><label>Filter by group</label>
         <select id="filter-type" onchange="renderInspection()">
           <option value="">All groups</option>
@@ -1072,11 +1421,15 @@ body.pdf-export .group-section.collapsed .group-grid{display:grid !important}
 
   <!-- ============== TAB: EQUIPMENT ============== -->
   <section id="tab-equipment" style="display:none">
+    <div class="station-tabs" id="eq-station-tabs">
+      <button class="station-tab active" data-eqst="SFO" onclick="setEquipmentStation('SFO')">✈ SFO</button>
+      <button class="station-tab" data-eqst="ORD" onclick="setEquipmentStation('ORD')">✈ ORD</button>
+    </div>
     <div class="actions">
       <button class="btn btn-primary" onclick="addNewEquipment()">＋ Add Equipment</button>
-      <button class="btn" onclick="printAllQRCodes()">🖨 Print All QR Codes</button>
+      <button class="btn" onclick="printAllQRCodes()"><span class="ic">🖨</span> Print All QR Codes</button>
       <span class="spacer"></span>
-      <span style="font-size:11px;color:#888;letter-spacing:1.2px;text-transform:uppercase;font-weight:600">Master list — changes apply to all dates</span>
+      <span style="font-size:11px;color:#888;letter-spacing:1.2px;text-transform:uppercase;font-weight:600" id="eq-station-label">SFO • Master list — changes apply to all dates</span>
     </div>
     <div id="eq-grid" class="eq-grid"></div>
   </section>
@@ -1084,12 +1437,37 @@ body.pdf-export .group-section.collapsed .group-grid{display:grid !important}
   <!-- ============== TAB: SETTINGS ============== -->
   <section id="tab-settings" style="display:none">
     <div class="settings-card">
+      <h3>Agents (Auto-fill list)</h3>
+      <p>Add the inspecting agents here. Names and job roles auto-save to the cloud as you type — any change is shared across every device immediately. When someone starts typing their name in the Inspection form, the dropdown suggests a match and auto-fills the Job Role.</p>
+      <div id="inspectors-list"></div>
+      <div class="actions" style="margin:0">
+        <button class="btn btn-primary" onclick="addInspector()">＋ Add Agent</button>
+        <button class="btn btn-ghost" onclick="resetAgentsToDefault()">↺ Restore Default Roster</button>
+      </div>
+    </div>
+    <div class="settings-card">
       <h3>Inspection Items</h3>
       <p>Edit, rename, remove or add inspection points. Changes apply to every GSE on every date. Existing data is preserved.</p>
       <div id="items-list" class="item-list"></div>
       <div class="actions" style="margin:0">
         <button class="btn btn-primary" onclick="addInspectionItem()">＋ Add Item</button>
         <button class="btn btn-ghost" onclick="resetInspectionItems()">Reset to Default (20 items)</button>
+      </div>
+    </div>
+    <div class="settings-card">
+      <h3>Admin Password & Access</h3>
+      <p>The admin password protects the <b>Equipment</b>, <b>Settings</b>, and <b>PMs</b> tabs — only admins can add, edit, rename, or remove agents, GSE, and PM files. Default password is <code style="color:var(--violet-2)">samsic</code>. <b>Change it immediately</b> so nobody else can edit your data. The new password is securely hashed (SHA-256), stored on every device, and <b>auto-syncs across all devices</b> (Mac, iPad, iPhone) within a few seconds — change it once, all devices update.</p>
+      <div id="admin-status" style="margin:8px 0 10px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase"></div>
+      <div class="actions" style="margin:0">
+        <button class="btn btn-primary" onclick="changeAdminPassword()">🔑 Change Password</button>
+        <button class="btn btn-outline-red" onclick="lockAdminNow()">🔒 Lock Now (Log Out Admin)</button>
+      </div>
+    </div>
+    <div class="settings-card">
+      <h3>Appearance</h3>
+      <p>Switch between dark and light themes. Your choice is remembered on this device.</p>
+      <div class="actions" style="margin:0">
+        <button class="btn btn-primary" onclick="toggleTheme()" id="theme-btn">🌙 Switch Theme</button>
       </div>
     </div>
     <div class="settings-card">
@@ -1104,6 +1482,36 @@ body.pdf-export .group-section.collapsed .group-grid{display:grid !important}
     </div>
   </section>
 
+  <!-- ============== TAB: QR REPORTS ============== -->
+  <section id="tab-qrreports" style="display:none">
+    <div class="actions">
+      <span style="font-size:11px;color:#888;letter-spacing:1.2px;text-transform:uppercase;font-weight:600">Reports submitted via QR code scan • linked to inspection date</span>
+    </div>
+    <div class="chip-row">
+      <span class="chip-label">📅 Date</span>
+      <button class="chip cyan" data-qrdate="all">All Dates</button>
+      <button class="chip" data-qrdate="selected" id="qr-chip-selected">Selected Day</button>
+    </div>
+    <div id="qr-reports-list" class="analytics-grid"></div>
+  </section>
+
+  <!-- ============== TAB: PMs FILES ============== -->
+  <section id="tab-pms" style="display:none">
+    <div class="station-tabs" id="pms-station-tabs">
+      <button class="station-tab active" data-pmsst="SFO" onclick="setPmsStation('SFO')">✈ SFO</button>
+      <button class="station-tab" data-pmsst="ORD" onclick="setPmsStation('ORD')">✈ ORD</button>
+    </div>
+    <div class="actions">
+      <span style="font-size:11px;color:#888;letter-spacing:1.2px;text-transform:uppercase;font-weight:600" id="pms-station-label">📂 SFO • Preventive Maintenance — PDF docs per GSE</span>
+      <span class="spacer"></span>
+      <button class="btn btn-ghost" onclick="renderPmsSection()" title="Refresh from cloud">↻ Refresh</button>
+    </div>
+    <div class="filter-bar" style="grid-template-columns:1fr">
+      <div class="search"><input id="pms-search-input" placeholder="🔍 Filter by GSE ref or filename within this station…" oninput="renderPmsSection()" autocomplete="off"></div>
+    </div>
+    <div id="pms-groups"></div>
+  </section>
+
   <div class="footer">
     <b>SAMSIC AIRPORT</b> — Confidential GSE Inspection — <span id="checklist-code-foot">ESSA.SFO.01</span> V01<br>
     All inspection days saved locally on this device.
@@ -1111,6 +1519,136 @@ body.pdf-export .group-section.collapsed .group-grid{display:grid !important}
 </div>
 
 <button class="fab-top" id="fab-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</button>
+
+<!-- ===== MENU PANEL (top-right nav, replaces tab strip) ===== -->
+<div class="menu-bg" id="menu-bg" onclick="if(event.target.id==='menu-bg') closeMenu()">
+  <div class="menu-panel" onclick="event.stopPropagation()">
+    <h4>📋 Sections</h4>
+    <button class="menu-item" data-menutab="inspection" onclick="menuGoTab('inspection')"><span class="ic">📋</span> Inspection</button>
+    <button class="menu-item" data-menutab="analytics" onclick="menuGoTab('analytics')"><span class="ic">📊</span> Analytics</button>
+    <button class="menu-item" data-menutab="history" onclick="menuGoTab('history')"><span class="ic">🗓</span> History</button>
+    <button class="menu-item" data-menutab="qrreports" onclick="menuGoTab('qrreports')"><span class="ic">📱</span> QR Reports</button>
+    <button class="menu-item" data-menutab="equipment" onclick="menuGoTab('equipment')"><span class="ic">🚚</span> Equipment <span class="lk">🔒 LOCKED</span></button>
+    <button class="menu-item" data-menutab="pms" onclick="menuGoTab('pms')"><span class="ic">📂</span> PMs Files <span class="lk" style="background:rgba(16,185,129,.2);color:#34d399;border-color:rgba(16,185,129,.4)">PDF DOCS</span></button>
+    <button class="menu-item" data-menutab="settings" onclick="menuGoTab('settings')"><span class="ic">⚙</span> Settings <span class="lk">🔒 LOCKED</span></button>
+
+    <h4 style="margin-top:14px">📤 Output</h4>
+    <button class="menu-item" onclick="closeMenu();window.print()"><span class="ic">🖨</span> Print Report</button>
+    <button class="menu-item" onclick="closeMenu();exportPDF()"><span class="ic">📄</span> Save as PDF</button>
+    <button class="menu-item" onclick="closeMenu();emailReport()"><span class="ic">✉</span> Email PDF</button>
+
+    <h4 style="margin-top:14px">⚙ Tools</h4>
+    <button class="menu-item" onclick="closeMenu();addNewGSE()"><span class="ic">＋</span> Add GSE (auto-generates QR)</button>
+    <button class="menu-item" onclick="closeMenu();expandAll(true)"><span class="ic">▼</span> Expand All</button>
+    <button class="menu-item" onclick="closeMenu();expandAll(false)"><span class="ic">▲</span> Collapse All</button>
+    <button class="menu-item" onclick="closeMenu();confirmReset()"><span class="ic">⟲</span> Reset Day</button>
+    <button class="menu-item" onclick="closeMenu();exportJSON()"><span class="ic">📥</span> Backup JSON</button>
+    <button class="menu-item" onclick="closeMenu();document.getElementById('import-file').click()"><span class="ic">📤</span> Restore JSON</button>
+    <button class="menu-item" onclick="toggleTheme()" id="menu-theme-btn"><span class="ic" id="menu-theme-ic">🌙</span> <span id="menu-theme-label">Light Theme</span></button>
+    <button class="menu-item" onclick="closeMenu();lockAdminNow()"><span class="ic">🔒</span> Lock Admin Now</button>
+
+    <button class="menu-close" onclick="closeMenu()">Close ✕</button>
+  </div>
+</div>
+
+<!-- ===== PASSWORD GATE MODAL ===== -->
+<div class="modal-bg" id="pw-bg" onclick="if(event.target.id==='pw-bg') closePwModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>🔒 Locked Section</h3>
+    <div>This section is restricted. Enter the admin password to continue.</div>
+    <div class="field" style="margin-top:14px">
+      <input id="pw-input" type="password" placeholder="Admin password" autocomplete="off"
+        style="width:100%;padding:14px 16px;background:rgba(7,10,36,.6);border:1px solid rgba(139,92,246,.45);border-radius:11px;color:#fff;font-size:16px"
+        onkeydown="if(event.key==='Enter') tryUnlock()">
+    </div>
+    <div class="row">
+      <button class="btn btn-ghost" onclick="closePwModal()">Cancel</button>
+      <button class="btn btn-red" onclick="tryUnlock()">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== QR PREVIEW MODAL ===== -->
+<div class="modal-bg" id="qr-bg" onclick="if(event.target.id==='qr-bg') closeQrModal()">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:380px">
+    <h3 id="qr-title">GSE QR Code</h3>
+    <div class="qr-modal-body">
+      <div class="qr-canvas-wrap"><div id="qr-canvas"></div></div>
+      <div class="qr-info" id="qr-info"></div>
+      <div class="qr-actions">
+        <button class="btn btn-primary" onclick="downloadQrPng()"><span class="ic">⬇</span> Download PNG</button>
+        <button class="btn" onclick="printSingleQr()"><span class="ic">🖨</span> Print</button>
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn btn-ghost" onclick="closeQrModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== QR FORM VIEW (shown when ?qr=<id> is in URL) ===== -->
+<div class="qr-view" id="qr-view">
+  <div class="qr-form-wrap" id="qr-form-wrap">
+    <h1>SAMSIC GSE Issue Report</h1>
+    <div class="sub">Submit an issue for this GSE</div>
+    <div class="field">
+      <label>GSE</label>
+      <input id="qr-gse" readonly style="background:rgba(7,10,36,.4);color:var(--violet-2);font-weight:800">
+    </div>
+    <div class="field">
+      <label>Date</label>
+      <input id="qr-date" type="date">
+    </div>
+    <div class="field" style="position:relative">
+      <label>Full Name</label>
+      <input id="qr-agent" placeholder="Start typing your name…" autocomplete="off"
+        oninput="onQrAgentInput()" onfocus="onQrAgentInput()" onblur="setTimeout(closeQrAgentSuggest,180)">
+      <div class="suggest-box" id="qr-agent-suggest"></div>
+    </div>
+    <div class="field">
+      <label>Job Role</label>
+      <input id="qr-role" readonly style="background:rgba(7,10,36,.4);color:var(--violet-2)">
+    </div>
+    <div class="field">
+      <label id="qr-gate-label">Gate</label>
+      <select id="qr-gate" onchange="onQrGateChange()" style="width:100%;padding:11px 12px;border-radius:10px;border:1px solid rgba(139,92,246,.45);background:rgba(7,10,36,.55);color:#fff;font-size:14px;font-weight:600">
+        <option value="">— Select a gate —</option>
+      </select>
+    </div>
+    <div class="field" id="qr-gate-other-wrap" style="display:none">
+      <label>Specify Gate / Plot / Hard Stand</label>
+      <input id="qr-gate-other" placeholder="e.g. C12, Plot 73, Hard Stand 3, M27…" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Location <span style="color:var(--txt-dim);font-weight:500">(optional — exact spot)</span></label>
+      <input id="qr-location" placeholder="e.g. behind jet bridge, ramp side, next to fuel pit…" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Comment of the GSE Issue</label>
+      <textarea id="qr-comment" placeholder="Describe the issue, parts affected, urgency…"></textarea>
+    </div>
+    <div class="field">
+      <label>Photos</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+        <button type="button" class="btn btn-primary" style="flex:1;min-width:140px;font-size:12px;padding:10px 12px"
+          onclick="document.getElementById('qr-photo-camera').click()">📷 Take Photo</button>
+        <button type="button" class="btn" style="flex:1;min-width:140px;font-size:12px;padding:10px 12px"
+          onclick="document.getElementById('qr-photo-input').click()">🖼 Choose from Gallery</button>
+      </div>
+      <input type="file" id="qr-photo-camera" accept="image/*" capture="environment" multiple style="display:none">
+      <input type="file" id="qr-photo-input" accept="image/*" multiple style="display:none">
+      <div class="qr-photo-preview" id="qr-photo-preview"></div>
+    </div>
+    <button class="qr-submit-btn" id="qr-submit" onclick="submitQrReport()">📤 Submit Report</button>
+    <div style="text-align:center;margin-top:14px;font-size:11px;color:#666;letter-spacing:1.5px;text-transform:uppercase">SAMSIC AIRPORT — GSE Issue Reporting</div>
+  </div>
+  <div class="qr-success" id="qr-success" style="display:none">
+    <div class="check">✅</div>
+    <h2>Report Submitted</h2>
+    <p>Thank you. Your report has been sent to the SAMSIC team.</p>
+    <button class="btn btn-primary" onclick="location.href=location.pathname" style="margin-top:18px">Submit Another</button>
+  </div>
+</div>
 
 <!-- MODAL -->
 <div class="modal-bg" id="modal-bg" onclick="closeModalIfBg(event)">
@@ -1129,10 +1667,48 @@ body.pdf-export .group-section.collapsed .group-grid{display:grid !important}
    SAMSIC GSE INSPECTION — v3 (B/W/Red, icons, editable items)
 ================================================================= */
 
+/* ─────────────────────────────────────────────────────────────────────
+   QR_BASE_URL  ← PASTE YOUR DEPLOYED APPS SCRIPT WEB-APP URL HERE
+   ─────────────────────────────────────────────────────────────────────
+   How to get it (one-time, 60 seconds):
+     1.  Open https://script.google.com  →  open the project that holds
+         Code.gs + index.html (the AppsScript folder in your Drive).
+     2.  Click  Deploy  →  New deployment  →  ⚙  →  Web app.
+     3.  Execute as : Me        Who has access : Anyone
+     4.  Click Deploy, copy the URL — it looks like
+         https://script.google.com/macros/s/AKfycb…/exec
+     5.  Paste it between the quotes below and save this file.
+
+   ─ Why this matters ─
+   When the file is opened from Google Drive on your Mac, the page URL is
+   file:///Users/…/index.html  — phones cannot open that. The QR will scan
+   but the phone will fail to load the form. Setting QR_BASE_URL pins all
+   QR codes to your public Apps Script URL so they work from any phone.
+
+   The same URL is used for SFO and ORD — each QR carries ?qr=<gseId> and
+   the app already knows which station the GSE belongs to.            */
+const QR_BASE_URL = 'https://jassouma2017-hue.github.io/gse-inspection';
+
 const STORAGE_KEY = 'samsic_gse_v3';
 const LEGACY_V2   = 'samsic_gse_v2';
 const LEGACY_V1   = 'samsic_gse_v1';
 const LOGO_KEY    = 'samsic_logo_v1';
+const ADMIN_PW_KEY= 'samsic_admin_pw_v1';
+const DEFAULT_ADMIN_PW = 'samsic';
+const LOCKED_TABS = ['equipment','settings'];
+
+const DEFAULT_INSPECTORS = [
+  {name:'Carlos Ibarra',     role:'Country Manager USA'},
+  {name:'Reyna Alfaro',      role:'Station Manager SFO'},
+  {name:'Abdellah Essaissi', role:'QSSE Manager US'},
+  {name:'Allan Cerdena',     role:'QSSE Manager SFO'},
+  {name:'Rene Garcia',       role:'Terminal Manager SFO'},
+  {name:'Charlie Canilao',   role:'Duty Manager SFO'},
+  {name:'Yusladys Gudiel',   role:'Duty Manager SFO'},
+  {name:'Winston Reyes',     role:'Duty Manager SFO'},
+  {name:'Carlos Mendez',     role:'Ramp Supervisor SFO'},
+  {name:'Leonardo Santos',   role:'GSE Mechanic'},
+];
 
 const DEFAULT_INSPECTION_ITEMS = [
   'Leaking Fluid','Tires','Lug Nut','Rim','Reflections','Lights',
@@ -1268,6 +1844,32 @@ function detectGroup(ref){
   return 'OT';
 }
 
+// ── Natural sort: SFBT1, SFBT2, SFBT3, … SFBT9, SFBT10, SFBT11, SFBT15
+// (the default string sort would put SFBT10 before SFBT2). Falls back
+// to plain string compare for items with no numeric suffix.
+function refSortKey(ref){
+  const r = (ref||'').toUpperCase();
+  // Split into chunks of letters and numbers so we can compare numerically when both parts are numbers.
+  return r.match(/(\d+|\D+)/g) || [r];
+}
+function naturalSortByRef(a,b){
+  const ka = refSortKey(a.ref), kb = refSortKey(b.ref);
+  const n = Math.max(ka.length, kb.length);
+  for(let i=0;i<n;i++){
+    const x=ka[i], y=kb[i];
+    if(x===undefined) return -1;
+    if(y===undefined) return 1;
+    const xn = /^\d+$/.test(x), yn = /^\d+$/.test(y);
+    if(xn && yn){
+      const d = parseInt(x,10) - parseInt(y,10);
+      if(d!==0) return d;
+    } else if(x!==y){
+      return x < y ? -1 : 1;
+    }
+  }
+  return 0;
+}
+
 /* === CATEGORY ICONS (inline SVG, white strokes) === */
 function iconFor(name, ref){
   const n=(name||'').toLowerCase();
@@ -1285,63 +1887,185 @@ function iconFor(name, ref){
   return svgGeneric();
 }
 
-function svgCargoLoader(){return `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-  <rect x="6" y="36" width="42" height="14" rx="2"/>
-  <rect x="20" y="14" width="38" height="6"/>
-  <path d="M22 36V22M30 36V22M38 36V22M46 36V22M54 20V36"/>
-  <circle cx="14" cy="52" r="3.5"/><circle cx="40" cy="52" r="3.5"/></svg>`;}
-function svgBeltLoader(){return `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-  <rect x="14" y="34" width="36" height="14" rx="2"/>
-  <path d="M20 34 L52 14"/><path d="M20 38 L52 18"/>
-  <circle cx="22" cy="50" r="3.5"/><circle cx="42" cy="50" r="3.5"/></svg>`;}
-function svgTractor(){return `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-  <rect x="12" y="28" width="40" height="20" rx="3"/>
-  <rect x="20" y="18" width="22" height="10" rx="2"/>
-  <circle cx="22" cy="50" r="4"/><circle cx="42" cy="50" r="4"/>
-  <line x1="52" y1="38" x2="58" y2="38"/></svg>`;}
-function svgPushback(){return `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-  <rect x="6" y="32" width="48" height="16" rx="3"/>
-  <rect x="14" y="22" width="22" height="10" rx="2"/>
-  <circle cx="16" cy="50" r="4"/><circle cx="44" cy="50" r="4"/>
-  <line x1="54" y1="40" x2="60" y2="40"/></svg>`;}
-function svgGPU(){return `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-  <rect x="8" y="16" width="48" height="32" rx="3"/>
-  <path d="M30 22 L24 36 L34 36 L28 48"/>
-  <line x1="42" y1="24" x2="50" y2="24"/><line x1="42" y1="30" x2="50" y2="30"/><line x1="42" y1="36" x2="50" y2="36"/>
-  <circle cx="18" cy="52" r="3"/><circle cx="46" cy="52" r="3"/></svg>`;}
-function svgAirStart(){return `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-  <rect x="6" y="20" width="44" height="28" rx="3"/>
-  <circle cx="28" cy="34" r="9"/>
-  <path d="M28 25v18 M19 34h18 M22 28l12 12 M22 40l12-12"/>
-  <line x1="50" y1="32" x2="58" y2="32"/></svg>`;}
-function svgACUnit(){return `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-  <rect x="8" y="18" width="48" height="28" rx="3"/>
-  <path d="M16 26v12 M16 32h6 M16 28l4 4 M16 36l4-4"/>
-  <path d="M32 26v12 M32 32h6 M32 28l4 4 M32 36l4-4"/>
-  <line x1="48" y1="26" x2="52" y2="26"/><line x1="48" y1="32" x2="52" y2="32"/><line x1="48" y1="38" x2="52" y2="38"/></svg>`;}
-function svgLavTruck(){return `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-  <rect x="6" y="30" width="14" height="14" rx="2"/>
-  <rect x="22" y="22" width="34" height="22" rx="3"/>
-  <ellipse cx="39" cy="33" rx="8" ry="3"/>
-  <circle cx="14" cy="50" r="4"/><circle cx="48" cy="50" r="4"/></svg>`;}
-function svgTruck(){return `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-  <rect x="6" y="28" width="14" height="16" rx="2"/>
-  <rect x="22" y="20" width="34" height="24" rx="3"/>
-  <line x1="9" y1="32" x2="17" y2="32"/>
-  <circle cx="14" cy="50" r="4"/><circle cx="48" cy="50" r="4"/></svg>`;}
-function svgStairs(){return `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M6 50 L18 50 L18 42 L28 42 L28 34 L38 34 L38 26 L50 26 L50 18 L58 18"/>
-  <line x1="6" y1="50" x2="58" y2="50"/>
-  <circle cx="14" cy="56" r="2"/><circle cx="50" cy="56" r="2"/></svg>`;}
-function svgTowbar(){return `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-  <line x1="8" y1="32" x2="56" y2="32"/>
-  <circle cx="10" cy="32" r="4"/>
-  <rect x="48" y="26" width="10" height="12" rx="2"/>
-  <line x1="20" y1="32" x2="20" y2="38"/><line x1="36" y1="32" x2="36" y2="38"/></svg>`;}
-function svgGeneric(){return `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-  <rect x="10" y="22" width="44" height="22" rx="3"/>
-  <circle cx="20" cy="50" r="4"/><circle cx="44" cy="50" r="4"/>
-  <line x1="16" y1="30" x2="48" y2="30"/></svg>`;}
+/* All icons share the same viewBox so they line up cleanly in the grid.
+   Stroke style stays consistent — they pick up the parent text color. */
+const _ICN = `viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"`;
+
+function svgCargoLoader(){return `<svg ${_ICN}>
+  <!-- Lift bed (raised platform) -->
+  <rect x="4" y="14" width="36" height="6" rx="1.2"/>
+  <line x1="6" y1="20" x2="6" y2="38"/><line x1="38" y1="20" x2="38" y2="38"/>
+  <!-- Scissor lift mechanism -->
+  <path d="M10 22 L34 36 M10 36 L34 22 M10 28 L34 28"/>
+  <!-- Truck chassis below -->
+  <rect x="2" y="38" width="50" height="12" rx="2"/>
+  <!-- Operator cab on right -->
+  <rect x="44" y="22" width="16" height="16" rx="1.6"/>
+  <line x1="48" y1="26" x2="56" y2="26"/>
+  <!-- Wheels -->
+  <circle cx="12" cy="54" r="4"/><circle cx="26" cy="54" r="4"/>
+  <circle cx="44" cy="54" r="4"/><circle cx="54" cy="54" r="4"/>
+  <circle cx="12" cy="54" r="1.2" fill="currentColor"/><circle cx="26" cy="54" r="1.2" fill="currentColor"/>
+  <circle cx="44" cy="54" r="1.2" fill="currentColor"/><circle cx="54" cy="54" r="1.2" fill="currentColor"/></svg>`;}
+
+function svgBeltLoader(){return `<svg ${_ICN}>
+  <!-- Conveyor belt (angled up to aircraft) -->
+  <rect x="14" y="36" width="36" height="6" rx="1.5" transform="rotate(-22 32 39)"/>
+  <!-- Belt rollers -->
+  <circle cx="20" cy="42" r="1.4"/><circle cx="32" cy="37" r="1.4"/><circle cx="44" cy="32" r="1.4"/>
+  <!-- Truck base -->
+  <rect x="6" y="40" width="44" height="10" rx="2"/>
+  <!-- Cab -->
+  <rect x="6" y="30" width="14" height="10" rx="1.5"/>
+  <line x1="9" y1="34" x2="17" y2="34"/>
+  <!-- Wheels -->
+  <circle cx="14" cy="54" r="4"/><circle cx="44" cy="54" r="4"/>
+  <circle cx="14" cy="54" r="1.2" fill="currentColor"/><circle cx="44" cy="54" r="1.2" fill="currentColor"/></svg>`;}
+
+function svgTractor(){return `<svg ${_ICN}>
+  <!-- Cab (tug body) -->
+  <path d="M14 24 L14 18 Q14 14 18 14 L36 14 Q40 14 40 18 L40 24"/>
+  <!-- Roof + windshield -->
+  <line x1="16" y1="16" x2="38" y2="16"/>
+  <!-- Main body -->
+  <rect x="8" y="24" width="48" height="20" rx="2.5"/>
+  <!-- Headlights -->
+  <circle cx="11" cy="32" r="1.4"/><circle cx="11" cy="38" r="1.4"/>
+  <!-- Windows -->
+  <rect x="17" y="18" width="20" height="6" rx="1"/>
+  <!-- Tow hitch -->
+  <line x1="56" y1="34" x2="62" y2="34"/><circle cx="62" cy="34" r="1.5"/>
+  <!-- Wheels -->
+  <circle cx="18" cy="48" r="5"/><circle cx="46" cy="48" r="5"/>
+  <circle cx="18" cy="48" r="2" fill="currentColor"/><circle cx="46" cy="48" r="2" fill="currentColor"/></svg>`;}
+
+function svgPushback(){return `<svg ${_ICN}>
+  <!-- Low-profile body (towbarless pushback) -->
+  <path d="M2 38 L4 30 L60 30 L62 38 L62 44 Q62 46 60 46 L4 46 Q2 46 2 44 Z"/>
+  <!-- Cab + windows -->
+  <rect x="22" y="18" width="20" height="12" rx="1.5"/>
+  <line x1="24" y1="22" x2="40" y2="22"/>
+  <!-- Headlights -->
+  <circle cx="6" cy="36" r="1.5"/><circle cx="6" cy="40" r="1.5"/>
+  <!-- Tow hitch -->
+  <line x1="58" y1="38" x2="62" y2="38"/>
+  <!-- Wheels -->
+  <circle cx="14" cy="50" r="5"/><circle cx="50" cy="50" r="5"/>
+  <circle cx="14" cy="50" r="2" fill="currentColor"/><circle cx="50" cy="50" r="2" fill="currentColor"/></svg>`;}
+
+function svgGPU(){return `<svg ${_ICN}>
+  <!-- Generator body -->
+  <rect x="6" y="14" width="52" height="34" rx="2.5"/>
+  <!-- Vent louvers (left side) -->
+  <line x1="10" y1="20" x2="22" y2="20"/><line x1="10" y1="24" x2="22" y2="24"/>
+  <line x1="10" y1="28" x2="22" y2="28"/><line x1="10" y1="32" x2="22" y2="32"/>
+  <line x1="10" y1="36" x2="22" y2="36"/><line x1="10" y1="40" x2="22" y2="40"/>
+  <!-- Lightning bolt (power) -->
+  <path d="M36 18 L30 32 L36 32 L32 44" stroke-width="3"/>
+  <!-- Control panel -->
+  <rect x="42" y="20" width="14" height="14" rx="1.2"/>
+  <circle cx="46" cy="24" r="1.4"/><circle cx="50" cy="24" r="1.4"/><circle cx="54" cy="24" r="1.4"/>
+  <line x1="44" y1="29" x2="54" y2="29"/><line x1="44" y1="32" x2="54" y2="32"/>
+  <!-- Wheels -->
+  <circle cx="14" cy="52" r="4"/><circle cx="50" cy="52" r="4"/>
+  <circle cx="14" cy="52" r="1.4" fill="currentColor"/><circle cx="50" cy="52" r="1.4" fill="currentColor"/>
+  <!-- Tow handle -->
+  <line x1="6" y1="26" x2="2" y2="26"/></svg>`;}
+
+function svgAirStart(){return `<svg ${_ICN}>
+  <!-- Body -->
+  <rect x="4" y="16" width="48" height="32" rx="3"/>
+  <!-- Turbine blades (fan icon — what an air-start unit pushes) -->
+  <circle cx="22" cy="32" r="11"/>
+  <path d="M22 21 Q26 28 22 32 Q18 28 22 21 Z" fill="currentColor" opacity=".55"/>
+  <path d="M33 32 Q26 36 22 32 Q26 28 33 32 Z" fill="currentColor" opacity=".55"/>
+  <path d="M22 43 Q18 36 22 32 Q26 36 22 43 Z" fill="currentColor" opacity=".55"/>
+  <path d="M11 32 Q18 28 22 32 Q18 36 11 32 Z" fill="currentColor" opacity=".55"/>
+  <circle cx="22" cy="32" r="2.4" fill="currentColor"/>
+  <!-- Hose outlet -->
+  <line x1="52" y1="30" x2="60" y2="30"/><circle cx="62" cy="30" r="1.4"/>
+  <!-- Wheels -->
+  <circle cx="14" cy="52" r="4"/><circle cx="44" cy="52" r="4"/>
+  <circle cx="14" cy="52" r="1.4" fill="currentColor"/><circle cx="44" cy="52" r="1.4" fill="currentColor"/></svg>`;}
+
+function svgACUnit(){return `<svg ${_ICN}>
+  <!-- Body -->
+  <rect x="4" y="14" width="50" height="34" rx="3"/>
+  <!-- Cooling coils -->
+  <path d="M10 20 q3 2 0 4 q-3 2 0 4 q3 2 0 4 q-3 2 0 4 q3 2 0 4 q-3 2 0 4"/>
+  <path d="M18 20 q3 2 0 4 q-3 2 0 4 q3 2 0 4 q-3 2 0 4 q3 2 0 4 q-3 2 0 4"/>
+  <!-- Snowflake -->
+  <g transform="translate(38 31)">
+    <line x1="-7" y1="0" x2="7" y2="0"/><line x1="0" y1="-7" x2="0" y2="7"/>
+    <line x1="-5" y1="-5" x2="5" y2="5"/><line x1="-5" y1="5" x2="5" y2="-5"/>
+    <circle cx="0" cy="0" r="1.4" fill="currentColor"/>
+  </g>
+  <!-- Air outlet -->
+  <line x1="54" y1="30" x2="62" y2="30"/>
+  <!-- Wheels -->
+  <circle cx="14" cy="52" r="4"/><circle cx="44" cy="52" r="4"/>
+  <circle cx="14" cy="52" r="1.4" fill="currentColor"/><circle cx="44" cy="52" r="1.4" fill="currentColor"/></svg>`;}
+
+function svgLavTruck(){return `<svg ${_ICN}>
+  <!-- Cab -->
+  <rect x="4" y="26" width="14" height="18" rx="1.5"/>
+  <line x1="7" y1="32" x2="15" y2="32"/>
+  <!-- Tank (cylindrical) -->
+  <rect x="20" y="20" width="38" height="24" rx="6"/>
+  <ellipse cx="20" cy="32" rx="2.5" ry="12"/>
+  <!-- Hose -->
+  <path d="M58 28 q4 0 4 4 q0 4 -4 4"/>
+  <!-- Hazard symbol -->
+  <circle cx="40" cy="32" r="5"/>
+  <text x="40" y="35" font-family="Manrope" font-size="8" font-weight="800" text-anchor="middle" fill="currentColor" stroke="none">L</text>
+  <!-- Wheels -->
+  <circle cx="12" cy="50" r="4"/><circle cx="32" cy="50" r="4"/><circle cx="50" cy="50" r="4"/>
+  <circle cx="12" cy="50" r="1.4" fill="currentColor"/><circle cx="32" cy="50" r="1.4" fill="currentColor"/><circle cx="50" cy="50" r="1.4" fill="currentColor"/></svg>`;}
+
+function svgTruck(){return `<svg ${_ICN}>
+  <!-- Cab -->
+  <rect x="4" y="22" width="16" height="22" rx="2"/>
+  <line x1="7" y1="28" x2="17" y2="28"/>
+  <!-- Cargo box -->
+  <rect x="22" y="14" width="38" height="30" rx="2"/>
+  <!-- Cargo door panels -->
+  <line x1="28" y1="18" x2="28" y2="42"/>
+  <line x1="36" y1="18" x2="36" y2="42"/>
+  <line x1="44" y1="18" x2="44" y2="42"/>
+  <line x1="52" y1="18" x2="52" y2="42"/>
+  <!-- Wheels -->
+  <circle cx="12" cy="50" r="4"/><circle cx="32" cy="50" r="4"/><circle cx="52" cy="50" r="4"/>
+  <circle cx="12" cy="50" r="1.4" fill="currentColor"/><circle cx="32" cy="50" r="1.4" fill="currentColor"/><circle cx="52" cy="50" r="1.4" fill="currentColor"/></svg>`;}
+
+function svgStairs(){return `<svg ${_ICN}>
+  <!-- Stair platform top -->
+  <rect x="50" y="14" width="10" height="6" rx="1"/>
+  <!-- Steps -->
+  <path d="M6 50 L14 50 L14 44 L22 44 L22 38 L30 38 L30 32 L38 32 L38 26 L46 26 L46 20 L60 20"/>
+  <!-- Hand rails -->
+  <path d="M6 46 L14 46 L20 38 L28 30 L36 22 L46 16 L60 16" opacity=".6"/>
+  <!-- Chassis -->
+  <rect x="2" y="50" width="60" height="6" rx="1.5"/>
+  <!-- Wheels -->
+  <circle cx="12" cy="58" r="3.5"/><circle cx="52" cy="58" r="3.5"/></svg>`;}
+
+function svgTowbar(){return `<svg ${_ICN}>
+  <!-- Long bar -->
+  <rect x="6" y="30" width="46" height="6" rx="1.5"/>
+  <!-- Aircraft-end ring (towbar head) -->
+  <circle cx="56" cy="33" r="6"/>
+  <circle cx="56" cy="33" r="2.5" fill="currentColor"/>
+  <!-- Tractor-end yoke -->
+  <path d="M6 28 L2 22 L2 44 L6 38"/>
+  <!-- Caster wheels (small support wheels) -->
+  <circle cx="22" cy="46" r="3"/><circle cx="36" cy="46" r="3"/>
+  <line x1="22" y1="36" x2="22" y2="44"/><line x1="36" y1="36" x2="36" y2="44"/></svg>`;}
+
+function svgGeneric(){return `<svg ${_ICN}>
+  <rect x="6" y="20" width="52" height="24" rx="3"/>
+  <line x1="10" y1="28" x2="54" y2="28"/>
+  <circle cx="18" cy="50" r="4"/><circle cx="46" cy="50" r="4"/>
+  <circle cx="18" cy="50" r="1.4" fill="currentColor"/><circle cx="46" cy="50" r="1.4" fill="currentColor"/></svg>`;}
 
 /* === STATE === */
 let state = loadState();
@@ -1383,14 +2107,18 @@ function loadState(){
 function freshState(){
   const eq = DEFAULT_EQUIPMENT.map(([n,r,s])=>({id:uid(),name:n,ref:r,photo:'',stations:[s||'SFO']}));
   return {
-    meta:{agent:'',agentId:'',shift:'',station:'SFO',supervisor:'',weather:''},
+    meta:{agent:'',role:'',shift:'',station:'SFO',weather:''},
     selectedDate: todayStr(),
     equipment: eq,
     inspections:{},
     collapsedGroups:{},
     inspectionItems:[...DEFAULT_INSPECTION_ITEMS],
+    inspectors:[...DEFAULT_INSPECTORS],
+    qrReports:{},          // {dateKey:[{id,gseId,gseName,gseRef,date,location,agent,role,issue,comment,photos:[],ts}]}
+    equipmentStation:'SFO',// which station tab is active in Equipment view
     analyticsFilters:{year:'all',month:'all',station:'all'},
     historyFilters:{year:'all',month:'all',station:'all'},
+    qrFilter:'all',
   };
 }
 
@@ -1398,9 +2126,30 @@ function migrate(s){
   s.equipment = s.equipment || [];
   s.inspections = s.inspections || {};
   s.collapsedGroups = s.collapsedGroups || {};
-  s.meta = s.meta || {agent:'',agentId:'',shift:'',station:'SFO',supervisor:'',weather:''};
+  s.meta = s.meta || {agent:'',role:'',shift:'',station:'SFO',weather:''};
+  if(!('role' in s.meta)) s.meta.role = '';
+  if('agentId' in s.meta) delete s.meta.agentId; // clean up legacy field
   s.selectedDate = s.selectedDate || todayStr();
   s.inspectionItems = (s.inspectionItems && s.inspectionItems.length) ? s.inspectionItems : [...DEFAULT_INSPECTION_ITEMS];
+  s.inspectors = (s.inspectors && s.inspectors.length) ? s.inspectors : [...DEFAULT_INSPECTORS];
+  // One-time upgrade: replace any earlier seeded list with the current canonical seed.
+  // Bumped to v3 when Carlos Ibarra + Reyna Alfaro were added.
+  const INSPECTORS_SEED_VERSION = 3;
+  if((s.inspectorsSeedV||0) < INSPECTORS_SEED_VERSION){
+    // Detect whether the user has customised the list (added names not in any prior seed).
+    const knownSeedNames = new Set([
+      'Abdellah Sfo','GSE Mechanic',
+      'Abdellah Essaissi','Allan Cerdena','Charlie Canilao','Yusladys Gudiel',
+      'Rene Garcia','Winston Reyes','Carlos Mendez','Leonardo Santos',
+      'Carlos Ibarra','Reyna Alfaro'
+    ]);
+    const userAdditions = s.inspectors.filter(i=>!knownSeedNames.has(i.name||''));
+    s.inspectors = [...DEFAULT_INSPECTORS, ...userAdditions];
+    s.inspectorsSeedV = INSPECTORS_SEED_VERSION;
+  }
+  s.qrReports = s.qrReports || {};
+  s.equipmentStation = s.equipmentStation || 'SFO';
+  s.qrFilter = s.qrFilter || 'all';
   s.analyticsFilters = s.analyticsFilters || {year:'all',month:'all',station:'all'};
   s.historyFilters = s.historyFilters || {year:'all',month:'all',station:'all'};
   // Backfill stations field for legacy equipment (default to SFO)
@@ -1475,11 +2224,13 @@ window.__lastPushed = {equipment:null, settings:null, dayKey:null, day:null};
 function equipmentSignature(){
   return JSON.stringify(state.equipment.map(e=>({
     id:e.id, name:e.name||'', ref:e.ref||'', photo:(e.photo||'').slice(0,80),
-    stations:(e.stations||['SFO']).slice().sort()
+    stations:(e.stations||['SFO']).slice().sort(),
+    persistentOOS: !!e.persistentOOS,                                 // sticky OOS
+    persistentIssues: Object.keys(e.persistentIssues||{}).sort()      // sticky failed items
   })));
 }
 function settingsSignature(){
-  return JSON.stringify({i:state.inspectionItems, l:(localStorage.getItem(LOGO_KEY)||'').slice(0,80)});
+  return JSON.stringify({i:state.inspectionItems, l:(localStorage.getItem(LOGO_KEY)||'').slice(0,80), ins:state.inspectors||[]});
 }
 function daySignature(){
   const d = state.inspections[state.selectedDate];
@@ -1508,7 +2259,9 @@ async function pushToFirebase(force){
       for(const eq of state.equipment){
         writes.push(setDoc(doc(db,'equipment',eq.id),{
           name:eq.name||'', ref:eq.ref||'', photo:eq.photo||'',
-          stations: eq.stations || ['SFO']
+          stations: eq.stations || ['SFO'],
+          persistentOOS: !!eq.persistentOOS,                          // sticky out-of-service flag
+          persistentIssues: eq.persistentIssues || {}                 // sticky failed items {item:true}
         }));
       }
       for(const d of remoteSnap.docs){
@@ -1517,13 +2270,17 @@ async function pushToFirebase(force){
       window.__lastPushed.equipment = eqSig;
     }
 
-    // 2. Settings (inspection items + logo) — only if changed
+    // 2. Settings (inspection items + logo + inspectors) — only if changed
     const setSig = settingsSignature();
     if(force || setSig !== window.__lastPushed.settings){
+      // Use {merge:true} so we never wipe adminPwHash (written by changeAdminPassword)
       writes.push(setDoc(doc(db,'settings','global'),{
         inspectionItems: state.inspectionItems,
-        logo: localStorage.getItem(LOGO_KEY) || ''
-      }));
+        inspectors: state.inspectors || [],
+        inspectorsSeedV: state.inspectorsSeedV || 0,
+        logo: localStorage.getItem(LOGO_KEY) || '',
+        qrLocations: state.qrLocations || []     // custom gates / plots / hard stands
+      }, {merge:true}));
       window.__lastPushed.settings = setSig;
     }
 
@@ -1582,7 +2339,9 @@ async function startFirebaseListeners(){
       window.__suppressSync = true;
       state.equipment = incoming.map(eq=>({
         id:eq.id, name:eq.name||'', ref:eq.ref||'', photo:eq.photo||'',
-        stations: eq.stations || ['SFO']
+        stations: eq.stations || ['SFO'],
+        persistentOOS: !!eq.persistentOOS,                            // preserve sticky OOS
+        persistentIssues: eq.persistentIssues || {}                   // preserve sticky issues
       }));
       saveState();
       window.__suppressSync = false;
@@ -1593,26 +2352,97 @@ async function startFirebaseListeners(){
     __pulledOnce=true;
   }, err=>{console.warn('eq listener',err); setLive('offline');});
 
-  // Settings (inspection items + logo)
+  // Settings (inspection items + logo + inspectors)
   onSnapshot(doc(db,'settings','global'), d=>{
     if(!d.exists()) return;
     const data = d.data();
     let dirty = false;
+    let needsRepush = false;
     window.__suppressSync = true;
     if(Array.isArray(data.inspectionItems) && data.inspectionItems.length){
       state.inspectionItems = data.inspectionItems; dirty = true;
+    }
+    if(Array.isArray(data.inspectors)){
+      // Apply the same seed-version upgrade we do locally, so the inspector roster
+      // stays in lock-step across devices even if Firestore has an older snapshot.
+      const remoteV = data.inspectorsSeedV || 0;
+      const TARGET_V = 3;
+      if(remoteV < TARGET_V){
+        const knownSeedNames = new Set([
+          'Abdellah Sfo','GSE Mechanic',
+          'Abdellah Essaissi','Allan Cerdena','Charlie Canilao','Yusladys Gudiel',
+          'Rene Garcia','Winston Reyes','Carlos Mendez','Leonardo Santos',
+          'Carlos Ibarra','Reyna Alfaro'
+        ]);
+        const userAdditions = (data.inspectors||[]).filter(i=>!knownSeedNames.has(i.name||''));
+        state.inspectors = [...DEFAULT_INSPECTORS, ...userAdditions];
+        state.inspectorsSeedV = TARGET_V;
+        needsRepush = true;
+      } else {
+        state.inspectors = data.inspectors;
+        state.inspectorsSeedV = remoteV;
+      }
+      dirty = true;
     }
     if(typeof data.logo === 'string' && data.logo && data.logo !== localStorage.getItem(LOGO_KEY)){
       localStorage.setItem(LOGO_KEY, data.logo);
       loadLogo(); dirty = true;
     }
+    // Sync custom QR locations (gates, plots, hard stands) across all devices
+    if(Array.isArray(data.qrLocations)){
+      state.qrLocations = data.qrLocations.slice();
+      dirty = true;
+      try{ renderQrLocationList(); }catch(e){}
+    }
+    // Admin password sync — adopt remote hash if newer than the local one.
+    if(typeof data.adminPwHash === 'string' && data.adminPwHash){
+      const cur = localStorage.getItem(ADMIN_PW_KEY) || '';
+      if(cur !== data.adminPwHash){
+        localStorage.setItem(ADMIN_PW_KEY, data.adminPwHash);
+        // If admin was unlocked using the OLD password, force re-lock here too
+        // so an old session can't keep editing after the password rotates.
+        setAdminUnlocked(false);
+        try{ refreshAdminStatus(); }catch(e){}
+        flash('🔁 Admin password was changed on another device — re-lock applied.','linear-gradient(135deg,#7c3aed,#4c1d95)');
+      }
+    }
     if(dirty){ saveState(); renderAll(); }
     window.__suppressSync = false;
     window.__lastPushed.settings = settingsSignature();
+    if(needsRepush){
+      // Re-push so Firestore holds the upgraded list + version, no more drift.
+      pushToFirebase(true);
+    }
   });
+
+  // QR Reports — live listener
+  onSnapshot(collection(db,'qrReports'), snap=>{
+    state.qrReports = state.qrReports || {};
+    const seen = new Set();
+    snap.docs.forEach(d=>{
+      const r = d.data();
+      seen.add(r.id || d.id);
+      const date = r.date || todayStr();
+      state.qrReports[date] = state.qrReports[date] || [];
+      const existingIdx = state.qrReports[date].findIndex(x=>x.id===(r.id||d.id));
+      if(existingIdx<0) state.qrReports[date].push({...r, id:r.id||d.id});
+      else state.qrReports[date][existingIdx] = {...r, id:r.id||d.id};
+    });
+    // Prune local entries not present remotely
+    Object.keys(state.qrReports).forEach(date=>{
+      state.qrReports[date] = state.qrReports[date].filter(r=>seen.has(r.id));
+      if(!state.qrReports[date].length) delete state.qrReports[date];
+    });
+    window.__suppressSync = true;
+    saveState();
+    window.__suppressSync = false;
+    if(currentTab==='qrreports') renderQrReports();
+  }, err=>{console.warn('qr listener',err);});
 
   // Selected day
   watchSelectedDay();
+  // Subscribe to PMs collection for live updates of uploaded PDFs
+  try{ subscribePms(); }catch(e){ console.warn('subscribePms init',e); }
 }
 function watchSelectedDay(){
   const fb = window.__fb;
@@ -1645,16 +2475,51 @@ function getDay(date){
 }
 function getRecord(eqId, date){
   const day = getDay(date);
+  const eq = state.equipment.find(e=>e.id===eqId);
+  const dateStr = date || state.selectedDate;
+  const today   = todayStr();
+  const isFutureOrToday = dateStr >= today;
   if(!day.records[eqId]){
-    const eq = state.equipment.find(e=>e.id===eqId);
     const naList = eq ? (NA_DEFAULTS[eq.name]||[]) : [];
     const items = {};
     state.inspectionItems.forEach(i=>items[i]= naList.includes(i)?'na':'');
-    day.records[eqId] = {items, comments:'', damage:[], oos:false, open:false};
+    // Persistent OOS — new records on TODAY or any future day inherit the sticky flag.
+    // Past days (created retroactively) are NOT auto-marked OOS, since the user said
+    // "whatever is saved should show" for historical days.
+    const inheritOOS = !!(eq && eq.persistentOOS) && isFutureOrToday;
+    day.records[eqId] = {items, comments:'', damage:[], oos:inheritOOS, open:false};
+  } else {
+    // Record already exists. If the equipment is currently sticky-OOS and the user
+    // hasn't explicitly cleared it on this day (oosUserCleared flag), make sure
+    // today/future days REFLECT the current sticky state. This handles the case
+    // where the next-day record was lazily created with oos=false BEFORE the
+    // user marked the equipment OOS yesterday.
+    if(eq && eq.persistentOOS && !day.records[eqId].oos && !day.records[eqId].oosUserCleared && isFutureOrToday){
+      day.records[eqId].oos = true;
+    }
   }
   // ensure all current items exist
   state.inspectionItems.forEach(i=>{ if(!(i in day.records[eqId].items)) day.records[eqId].items[i]=''; });
-  return day.records[eqId];
+
+  // ── Persistent ISSUES ──
+  // If the equipment has open issues that haven't been fixed, carry them forward
+  // onto today/future inspections so the next agent has to verify each one.
+  // The user clears the issue by tapping PASS or N/A on that item — the
+  // r.itemsCleared map remembers the per-day decision so the override doesn't snap back.
+  const rec = day.records[eqId];
+  rec.itemsCleared = rec.itemsCleared || {};
+  rec.itemsInheritedFail = rec.itemsInheritedFail || {};
+  if(eq && eq.persistentIssues && isFutureOrToday){
+    Object.keys(eq.persistentIssues).forEach(itemName => {
+      if(!eq.persistentIssues[itemName]) return;
+      if(!state.inspectionItems.includes(itemName)) return;     // item was removed since
+      if(rec.items[itemName] === '' && !rec.itemsCleared[itemName]){
+        rec.items[itemName] = 'fail';
+        rec.itemsInheritedFail[itemName] = true;                // mark for visual hint
+      }
+    });
+  }
+  return rec;
 }
 
 function summarizeRecord(rec){
@@ -1681,10 +2546,9 @@ function flash(msg, color){
 function syncMetaFromInputs(){
   const cur = {
     agent:    document.getElementById('agent-name').value,
-    agentId:  document.getElementById('agent-id').value,
+    role:     document.getElementById('agent-role').value,
     shift:    document.getElementById('insp-shift').value,
     station:  document.getElementById('insp-station').value,
-    supervisor:document.getElementById('insp-super').value,
     weather:  document.getElementById('insp-weather').value,
   };
   state.meta = cur;
@@ -1695,10 +2559,9 @@ function hydrateMeta(){
   const day = state.inspections[state.selectedDate];
   const m = (day && day.meta) ? day.meta : state.meta;
   document.getElementById('agent-name').value = m.agent||'';
-  document.getElementById('agent-id').value   = m.agentId||'';
+  document.getElementById('agent-role').value = m.role||'';
   document.getElementById('insp-shift').value = m.shift||'';
   document.getElementById('insp-station').value=m.station||'SFO';
-  document.getElementById('insp-super').value = m.supervisor||'';
   document.getElementById('insp-weather').value=m.weather||'';
   document.getElementById('insp-date').value = state.selectedDate;
   updateDateBar();
@@ -1775,12 +2638,19 @@ function refreshKPIs(){
 function renderInspection(){
   refreshKPIs();
   const root = document.getElementById('gse-groups');
-  const search=(document.getElementById('search-input').value||'').toLowerCase();
+  const search=(document.getElementById('search-input').value||'').toLowerCase().trim();
   const ftype=document.getElementById('filter-type').value;
   const fstat=document.getElementById('filter-status').value;
   root.innerHTML='';
 
-  const stationEq = equipmentForCurrentStation();
+  // SEARCH BEHAVIOUR:
+  //   • Empty query → only show equipment for the current station.
+  //   • Non-empty query → search the WHOLE fleet (every station) so a
+  //     specific unit like "SFbt12" or "ET1004" is found even from another tab.
+  //   • Exact ref match → render a single highlighted "Direct Match" card
+  //     at the top so the user instantly sees that one specific GSE.
+  const stationEq    = equipmentForCurrentStation();
+  const searchSource = search ? state.equipment : stationEq;
 
   const typeSel=document.getElementById('filter-type');
   const cur = typeSel.value;
@@ -1790,16 +2660,56 @@ function renderInspection(){
     if(has){const o=document.createElement('option');o.value=g.key;o.textContent=g.name;if(g.key===cur) o.selected=true;typeSel.appendChild(o);}
   });
 
+  // Normalise search: ignore spaces/dashes so "SF BT 12" or "sf-bt-12" still matches "SFBT12"
+  const searchNorm = search.replace(/[\s\-_]/g,'');
+
+  // ── Exact-match shortcut ──────────────────────────────────────────
+  if(search){
+    const exact = searchSource.filter(eq => (eq.ref||'').toLowerCase().replace(/[\s\-_]/g,'') === searchNorm);
+    if(exact.length){
+      const sec = document.createElement('div');
+      sec.className='group-section';
+      sec.innerHTML = `
+        <div class="group-header" style="background:linear-gradient(135deg,rgba(16,185,129,.20),rgba(6,182,212,.10));border-color:rgba(16,185,129,.45)">
+          <div class="group-icon-box">${iconFor(exact[0].name, exact[0].ref)}</div>
+          <div class="group-title">
+            <h2>🎯 Direct Match — ${escapeHTML(exact[0].ref || '(no ref)')}</h2>
+            <p>${escapeHTML(exact[0].name)} • ${escapeHTML((exact[0].stations||['SFO']).join(' + '))}</p>
+          </div>
+          <div class="group-stats"><span class="group-pill good">${exact.length} found</span></div>
+        </div>
+        <div class="group-grid"></div>`;
+      const grid = sec.querySelector('.group-grid');
+      exact.forEach(eq => grid.appendChild(buildCard(eq)));
+      root.appendChild(sec);
+    }
+  }
+
   const buckets = {};
-  stationEq.forEach(eq=>{ const k = detectGroup(eq.ref); (buckets[k] = buckets[k]||[]).push(eq); });
+  searchSource.forEach(eq=>{ const k = detectGroup(eq.ref); (buckets[k] = buckets[k]||[]).push(eq); });
+  // Sort each group naturally by reference (SFBT1, SFBT2, … SFBT10, SFBT11)
+  Object.keys(buckets).forEach(k => { buckets[k].sort(naturalSortByRef); });
 
   let groupsToRender = GROUPS.filter(g=>buckets[g.key] && buckets[g.key].length);
   if(ftype) groupsToRender = groupsToRender.filter(g=>g.key===ftype);
 
+  // Skip exact-matched IDs from the partial-results section so the same card
+  // doesn't appear twice on screen.
+  const exactIds = new Set();
+  if(search){
+    searchSource.filter(eq => (eq.ref||'').toLowerCase().replace(/[\s\-_]/g,'') === searchNorm)
+                .forEach(eq => exactIds.add(eq.id));
+  }
+
   groupsToRender.forEach(g=>{
     const items = buckets[g.key];
     const filteredItems = items.filter(eq=>{
-      if(search && !((eq.name+' '+eq.ref).toLowerCase().includes(search))) return false;
+      if(exactIds.has(eq.id)) return false;
+      if(search){
+        const hay = ((eq.name||'')+' '+(eq.ref||'')).toLowerCase();
+        const hayNorm = hay.replace(/[\s\-_]/g,'');
+        if(!(hay.includes(search) || hayNorm.includes(searchNorm))) return false;
+      }
       const r = getRecord(eq.id);
       const sum = summarizeRecord(r);
       if(fstat==='ok' && (sum.fail>0||r.oos||sum.unset>0)) return false;
@@ -1818,7 +2728,8 @@ function renderInspection(){
       else if(s.unset===0) pass++;
     });
 
-    const collapsed = !!state.collapsedGroups[g.key];
+    // When a search query is active, force the group open so the matching card is visible.
+    const collapsed = search ? false : !!state.collapsedGroups[g.key];
     const sec = document.createElement('div');
     sec.className = 'group-section'+(collapsed?' collapsed':'');
     const sample = items[0];
@@ -1845,7 +2756,15 @@ function renderInspection(){
   });
 
   if(!root.children.length){
-    root.innerHTML = `<div class="footer" style="margin-top:0">No equipment matches your filters.</div>`;
+    if(search){
+      root.innerHTML = `<div class="footer" style="margin-top:0;text-align:center;padding:30px">
+        <div style="font-size:38px;line-height:1">🔍</div>
+        <div style="font-weight:800;color:var(--violet-2);margin-top:10px;letter-spacing:1px">No GSE matches "<span style="color:#fff">${escapeHTML(search)}</span>"</div>
+        <div style="font-size:12px;color:#888;margin-top:8px">Tried searching every station. Check the spelling, or use Equipment → ＋ Add Equipment to add a new unit.</div>
+      </div>`;
+    } else {
+      root.innerHTML = `<div class="footer" style="margin-top:0">No equipment matches your filters.</div>`;
+    }
   }
 }
 
@@ -1867,13 +2786,13 @@ function buildCard(eq){
 
   card.innerHTML = `
     <div class="photo" data-cardexpand="${eq.id}" title="Tap to open inspection checklist">
-      <input type="file" accept="image/*" capture="environment" style="display:none" data-photo="${eq.id}">
+      <input type="file" accept="image/*" style="display:none" data-photo="${eq.id}">
       <div class="cat-overlay">${icon}</div>
       ${fuelLabel?`<span class="fuel-tag ${fuelClass}">${fuelLabel}</span>`:''}
       ${eq.photo
         ? `<img src="${eq.photo}" alt="">`
-        : `<div class="ph-empty">${icon}<div>Tap to inspect • Use 📷 to add photo</div></div>`}
-      <button type="button" class="photo-edit" data-photo-trigger="${eq.id}">📷 ${eq.photo?'Change':'Add Photo'}</button>
+        : `<div class="ph-empty">${icon}<div>Tap to inspect • Tap 📷 to add photo (camera or gallery)</div></div>`}
+      <button type="button" class="photo-edit" data-photo-trigger="${eq.id}">📷 ${eq.photo?'Change Photo':'Camera / Gallery'}</button>
       ${eq.photo?`<button type="button" class="photo-edit danger" data-rmphoto="${eq.id}" style="right:auto;left:10px">✕ Remove</button>`:''}
     </div>
 
@@ -1899,11 +2818,23 @@ function buildCard(eq){
 
       <div class="inspection">
         <div class="section-label">Inspection Checklist</div>
+        ${(()=>{
+          // Banner with the count + list of issues that carried over from a previous day.
+          // Shown only when there are at least 1 inherited fail still un-resolved on this day.
+          const inh = Object.keys(rec.itemsInheritedFail||{}).filter(k => rec.items[k]==='fail');
+          if(!inh.length) return '';
+          return `<div class="carryover-banner" title="These items were marked FAIL on a previous inspection and have not been cleared. Tap PASS or N/A once verified fixed.">
+            🔁 <b>${inh.length} issue${inh.length>1?'s':''} carried over from a previous day:</b>
+            <span class="carryover-list">${inh.map(x=>escapeHTML(x)).join(' · ')}</span>
+            — verify if fixed before you sign off.
+          </div>`;
+        })()}
         <div class="items">
           ${state.inspectionItems.map(i=>{
             const v=rec.items[i];
-            return `<div class="item">
-              <span class="name">${escapeHTML(i)}</span>
+            const inheritedFail = !!(rec.itemsInheritedFail && rec.itemsInheritedFail[i] && v==='fail');
+            return `<div class="item${inheritedFail?' inherited-fail':''}">
+              <span class="name">${escapeHTML(i)}${inheritedFail?` <span class="inh-pill" title="Carried over from a previous inspection — verify if fixed">🔁</span>`:''}</span>
               <div class="tri" data-tri="${eq.id}|${escapeAttr(i)}">
                 <button class="${v==='pass'?'active pass':''}" data-set="pass">PASS</button>
                 <button class="${v==='fail'?'active fail':''}" data-set="fail">FAIL</button>
@@ -1916,6 +2847,7 @@ function buildCard(eq){
         <div class="oos-toggle">
           <span class="lbl">⚠ Out of Service</span>
           <div class="switch ${rec.oos?'on':''}" data-oos="${eq.id}"></div>
+          ${eq.persistentOOS ? `<span class="oos-sticky-badge" title="Will stay OOS on every future day until you toggle it off">🔁 STICKY OOS</span>` : ''}
         </div>
 
         <div class="section-label" style="margin-top:14px">Damage / OOS Photos</div>
@@ -1927,7 +2859,7 @@ function buildCard(eq){
                 <button class="remove" data-rmdmg="${eq.id}|${i}" title="Remove">×</button>
               </div>`).join('')}
             <label class="damage-thumb" title="Add damage photo">
-              <input type="file" accept="image/*" capture="environment" style="display:none" data-dmg="${eq.id}">
+              <input type="file" accept="image/*" style="display:none" data-dmg="${eq.id}">
               <span class="add-icon">+</span>
             </label>
           </div>
@@ -2019,8 +2951,22 @@ function renderHistory(){
 /* === RENDER EQUIPMENT === */
 function renderEquipment(){
   const grid = document.getElementById('eq-grid');
+  if(!grid) return;
   grid.innerHTML='';
-  state.equipment.forEach(eq=>{
+  // Sync station-tab active state
+  const eqSt = state.equipmentStation || 'SFO';
+  document.querySelectorAll('.station-tab').forEach(b=>b.classList.toggle('active', b.dataset.eqst===eqSt));
+  const lbl = document.getElementById('eq-station-label');
+  if(lbl) lbl.textContent = eqSt+' • Master list — changes apply to all dates';
+
+  const filtered = state.equipment
+    .filter(eq=>(eq.stations||['SFO']).includes(eqSt))
+    .sort(naturalSortByRef);
+  if(!filtered.length){
+    grid.innerHTML = `<div class="footer" style="margin-top:0">No equipment for ${eqSt}. Use "Add Equipment" or toggle station on another item.</div>`;
+    return;
+  }
+  filtered.forEach(eq=>{
     const icon = iconFor(eq.name, eq.ref);
     const stations = eq.stations || ['SFO'];
     const stationTags = stations.map(s=>{
@@ -2032,7 +2978,7 @@ function renderEquipment(){
     card.className='eq-card';
     card.innerHTML=`
       <div class="photo" style="height:130px">
-        <input type="file" accept="image/*" capture="environment" style="display:none" data-photo="${eq.id}">
+        <input type="file" accept="image/*" style="display:none" data-photo="${eq.id}">
         <div class="cat-overlay">${icon}</div>
         ${eq.photo?`<img src="${eq.photo}">`:`<div class="ph-empty">${icon}<div>Use 📷 to add photo</div></div>`}
         <button type="button" class="photo-edit" data-photo-trigger="${eq.id}">📷 ${eq.photo?'Change':'Add Photo'}</button>
@@ -2043,7 +2989,7 @@ function renderEquipment(){
         <input data-ref="${eq.id}" value="${escapeAttr(eq.ref)}" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--cyan);letter-spacing:1.5px;font-weight:800;text-transform:uppercase;margin-top:4px">
         <div style="display:flex;gap:6px;margin-top:8px;align-items:center;flex-wrap:wrap">${stationTags}
           <button class="mini-btn" data-tog-station="${eq.id}" title="Toggle which stations this GSE belongs to">⇆ Stations</button>
-          <button class="mini-btn" onclick="showQrCode('${eq.id}')">⬛ QR Code</button>
+          <button class="mini-btn" data-qr-eq="${eq.id}" style="background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border:none">📱 QR Code</button>
           <button class="mini-btn danger" data-del-eq="${eq.id}">🗑 Remove</button>
         </div>
       </div>`;
@@ -2053,6 +2999,10 @@ function renderEquipment(){
 
 /* === RENDER SETTINGS === */
 function renderSettings(){
+  renderInspectorsList();
+  refreshAdminStatus();
+  // refresh theme button label too
+  applyTheme(getTheme());
   const list = document.getElementById('items-list');
   if(!list) return;
   list.innerHTML='';
@@ -2314,27 +3264,1211 @@ function drawChart(id,cfg){
   charts[id] = new Chart(ctx, cfg);
 }
 
-/* === TABS === */
+/* === TABS (driven by always-visible toolbar) === */
 let currentTab = 'inspection';
-document.querySelectorAll('.tab').forEach(t=>{
-  t.addEventListener('click',()=>{
-    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-    t.classList.add('active');
-    currentTab = t.dataset.tab;
-    ['inspection','analytics','history','equipment','settings'].forEach(name=>{
-      const sec = document.getElementById('tab-'+name);
-      if(sec) sec.style.display = (name===currentTab?'':'none');
+const ALL_TABS = ['inspection','analytics','history','equipment','settings','qrreports','pms'];
+// PMs tab is intentionally NOT in LOCKED_TABS — viewers can browse and download
+// the PDFs (read-only). Uploads & deletes still gate via askAdminPw() inside
+// uploadPmsFile() and deletePmsFile().
+
+function switchTab(name){
+  if(!ALL_TABS.includes(name)) return;
+  // Enforce admin gate when jumping into a locked section directly via tab click
+  if(LOCKED_TABS.includes(name) && !isAdminUnlocked()){
+    askAdminPw(()=>{ switchTab(name); });
+    return;
+  }
+  currentTab = name;
+  ALL_TABS.forEach(t=>{
+    const sec = document.getElementById('tab-'+t);
+    if(sec) sec.style.display = (t===name?'':'none');
+  });
+  // Reflect active state in toolbar tabs
+  document.querySelectorAll('#tabs .tab').forEach(el=>{
+    el.classList.toggle('active', el.dataset.tab===name);
+  });
+  // Reflect active state in legacy menu (still present but hidden)
+  document.querySelectorAll('.menu-item[data-menutab]').forEach(el=>{
+    el.classList.toggle('active', el.dataset.menutab===name);
+  });
+  if(name==='analytics') renderAnalytics();
+  if(name==='history') renderHistory();
+  if(name==='equipment') renderEquipment();
+  if(name==='settings') renderSettings();
+  if(name==='qrreports') renderQrReports();
+  if(name==='pms') renderPmsSection();
+}
+
+/* === MENU === */
+function openMenu(){
+  document.querySelectorAll('.menu-item[data-menutab]').forEach(el=>{
+    el.classList.toggle('active', el.dataset.menutab===currentTab);
+  });
+  document.getElementById('menu-bg').classList.add('show');
+}
+function closeMenu(){ document.getElementById('menu-bg').classList.remove('show'); }
+function menuGoTab(name){
+  if(LOCKED_TABS.includes(name) && !isAdminUnlocked()){
+    closeMenu();
+    askAdminPw(()=>{ switchTab(name); });
+    return;
+  }
+  switchTab(name);
+  closeMenu();
+}
+
+/* === PASSWORD GATE (synced across all devices via Firestore) ===
+   The admin password is stored as a SHA-256 hex hash in BOTH:
+     • localStorage (for instant offline check)
+     • Firestore settings/global.adminPwHash (so iPad / phone / Mac stay in lock-step)
+   When you change it on one device, the live listener in subscribeFirebase()
+   pushes the new hash to every other device within seconds and force-locks them. */
+
+async function sha256Hex(s){
+  const buf = new TextEncoder().encode(s||'');
+  const h = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function getStoredAdminPw(){ return localStorage.getItem(ADMIN_PW_KEY) || ''; }
+async function verifyAdminPw(input){
+  const stored = getStoredAdminPw();
+  if(!stored){ return input === DEFAULT_ADMIN_PW; }            // never changed → default
+  if(/^[0-9a-f]{64}$/.test(stored)){                            // hashed
+    return (await sha256Hex(input)) === stored;
+  }
+  return input === stored;                                      // legacy plaintext
+}
+function isAdminUnlocked(){ return sessionStorage.getItem('samsic_admin_unlocked')==='1'; }
+function setAdminUnlocked(v){
+  if(v) sessionStorage.setItem('samsic_admin_unlocked','1');
+  else sessionStorage.removeItem('samsic_admin_unlocked');
+}
+let __pwOnOk = null;
+function askAdminPw(onOk){
+  __pwOnOk = onOk;
+  const pw=document.getElementById('pw-input'); pw.value='';
+  document.getElementById('pw-bg').classList.add('show');
+  setTimeout(()=>pw.focus(),100);
+}
+function closePwModal(){ document.getElementById('pw-bg').classList.remove('show'); __pwOnOk=null; }
+async function tryUnlock(){
+  const v = document.getElementById('pw-input').value;
+  if(await verifyAdminPw(v)){
+    setAdminUnlocked(true);
+    closePwModal();
+    flash('🔓 Unlocked — admin actions enabled','linear-gradient(135deg,#10b981,#059669)');
+    refreshAdminStatus();
+    try{ updateLockButtonIcon(); }catch(e){}
+    if(__pwOnOk) __pwOnOk();
+  } else {
+    flash('Wrong password','#ef4444');
+    const inp=document.getElementById('pw-input');
+    inp.style.animation='shake .35s'; setTimeout(()=>inp.style.animation='',400);
+  }
+}
+
+/* Push the new password hash to Firestore so every device updates within seconds. */
+async function pushAdminPwHashToFirestore(hash){
+  try{
+    const fb = window.__fb;
+    if(!fb || !fb.initialized) return;
+    const {db, doc, setDoc} = fb;
+    await setDoc(doc(db,'settings','global'), {adminPwHash: hash, adminPwUpdatedAt: Date.now()}, {merge:true});
+  }catch(e){ console.warn('admin pw push',e); }
+}
+async function changeAdminPassword(){
+  // Require admin to already be unlocked OR know the current password.
+  const cur = prompt('Current admin password:');
+  if(cur === null) return;
+  if(!(await verifyAdminPw(cur))){ alert('Wrong current password. Password was NOT changed.'); return; }
+  const nw = prompt('New password (at least 6 characters recommended):');
+  if(!nw || nw.length<4){ alert('Password too short. Use at least 4 characters.'); return; }
+  const nw2 = prompt('Confirm new password:');
+  if(nw !== nw2){ alert('Passwords do not match. Password was NOT changed.'); return; }
+  const hash = await sha256Hex(nw);
+  localStorage.setItem(ADMIN_PW_KEY, hash);
+  await pushAdminPwHashToFirestore(hash);
+  // Force re-lock so the new password must be used immediately
+  setAdminUnlocked(false);
+  refreshAdminStatus();
+  flash('Password updated & pushed to ALL devices. Each device will require the new password.','linear-gradient(135deg,#10b981,#059669)');
+}
+
+/* === LOCK / UNLOCK toggle ===
+   • If admin is currently unlocked → lock it.
+   • If admin is currently locked   → open the password modal so the user can unlock it.
+   This is what every device's 🔒 button (toolbar + menu) calls. */
+function lockAdminNow(){
+  if(isAdminUnlocked()){
+    setAdminUnlocked(false);
+    refreshAdminStatus();
+    updateLockButtonIcon();
+    flash('🔒 Admin locked. Editing now requires password.','linear-gradient(135deg,#ef4444,#7f1d1d)');
+    if(LOCKED_TABS.includes(currentTab)) switchTab('inspection');
+  } else {
+    // Currently locked — prompt for password to unlock
+    askAdminPw(()=>{
+      // tryUnlock() flips the state itself on success and shows its own flash
+      updateLockButtonIcon();
     });
-    if(currentTab==='analytics') renderAnalytics();
-    if(currentTab==='history') renderHistory();
-    if(currentTab==='equipment') renderEquipment();
-    if(currentTab==='settings') renderSettings();
+  }
+}
+function updateLockButtonIcon(){
+  const unlocked = isAdminUnlocked();
+  document.querySelectorAll('.toolbar-actions .btn[title*="dmin"]').forEach(b=>{
+    b.innerHTML = `<span class="ic">${unlocked?'🔓':'🔒'}</span>`;
+    b.setAttribute('title', unlocked?'Lock admin (sign out edit mode)':'Unlock admin (enter password)');
+    b.classList.toggle('btn-outline-red', unlocked);
+    b.classList.toggle('btn-primary', !unlocked);
+  });
+}
+
+/* === ADMIN STATUS DISPLAY === */
+function refreshAdminStatus(){
+  const el = document.getElementById('admin-status');
+  if(!el) return;
+  const unlocked = isAdminUnlocked();
+  const stored = localStorage.getItem(ADMIN_PW_KEY) || '';
+  // Custom password = either a hash (changed) OR a non-default plaintext.
+  const isCustomPw = stored && stored !== DEFAULT_ADMIN_PW;
+  el.innerHTML = `
+    <div style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;
+        background:${unlocked?'rgba(16,185,129,.18)':'rgba(239,68,68,.15)'};
+        color:${unlocked?'#34d399':'#fca5a5'};border:1px solid ${unlocked?'rgba(16,185,129,.4)':'rgba(239,68,68,.4)'}">
+        ${unlocked?'🟢 Admin UNLOCKED on this device':'🔒 Admin LOCKED — viewer mode'}
+      </span>
+      <span style="color:${isCustomPw?'#34d399':'#facc15'};font-weight:700;font-size:11px">
+        ${isCustomPw?'✓ Custom password set':'⚠ Still using default password — please change it now'}
+      </span>
+    </div>`;
+}
+
+/* === THEME (dark / light) === */
+const THEME_KEY='samsic_theme_v1';
+function getTheme(){ return localStorage.getItem(THEME_KEY) || 'dark'; }
+function applyTheme(t){
+  const theme = (t==='light')?'light':'dark';
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem(THEME_KEY, theme);
+  // Update meta theme-color so iOS status bar matches
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute('content', theme==='light'?'#ffffff':'#000000');
+  // Update menu button label
+  const lbl = document.getElementById('menu-theme-label');
+  const ic  = document.getElementById('menu-theme-ic');
+  if(lbl) lbl.textContent = theme==='light' ? 'Dark Theme' : 'Light Theme';
+  if(ic)  ic.textContent  = theme==='light' ? '🌙' : '☀️';
+  const sbtn = document.getElementById('theme-btn');
+  if(sbtn) sbtn.innerHTML = theme==='light' ? '🌙 Switch to Dark' : '☀️ Switch to Light';
+  // Update inline toolbar icon
+  const tic = document.getElementById('toolbar-theme-ic');
+  if(tic) tic.textContent = theme==='light' ? '🌙' : '☀️';
+}
+function toggleTheme(){
+  const next = getTheme()==='light' ? 'dark' : 'light';
+  applyTheme(next);
+  flash(next==='light'?'Light theme on ☀️':'Dark theme on 🌙','linear-gradient(135deg,#7c3aed,#a78bfa)');
+}
+// Apply saved theme as soon as the script runs (avoids flash of wrong theme)
+try{ applyTheme(getTheme()); }catch(e){}
+
+/* === INSPECTOR AUTOCOMPLETE === */
+function buildSuggestList(query, boxId, onPick){
+  const q = (query||'').toLowerCase().trim();
+  const box = document.getElementById(boxId);
+  if(!box) return;
+  const matches = (state.inspectors||[]).filter(i=>{
+    if(!q) return true;
+    return (i.name||'').toLowerCase().includes(q) || (i.role||'').toLowerCase().includes(q);
+  }).slice(0,8);
+  if(!matches.length){
+    box.innerHTML = `<div class="suggest-item empty">No match. Add this person from Settings → Agents.</div>`;
+  } else {
+    box.innerHTML = matches.map(i=>`
+      <div class="suggest-item" data-pick="${escapeAttr(i.name)}|${escapeAttr(i.role)}">
+        <span class="nm">${escapeHTML(i.name)}</span>
+        <span class="rl">${escapeHTML(i.role||'(no role set)')}</span>
+      </div>`).join('');
+    box.querySelectorAll('.suggest-item').forEach(el=>{
+      el.addEventListener('mousedown', e=>{
+        e.preventDefault();
+        const [n,r] = el.dataset.pick.split('|');
+        onPick(n, r);
+      });
+    });
+  }
+  box.classList.add('show');
+}
+function onAgentInput(){
+  const q = document.getElementById('agent-name').value;
+  buildSuggestList(q,'agent-suggest',(name,role)=>{
+    document.getElementById('agent-name').value = name;
+    document.getElementById('agent-role').value = role || '';
+    closeAgentSuggest();
+    syncMetaFromInputs(); debounceSave();
+  });
+}
+function closeAgentSuggest(){
+  const box=document.getElementById('agent-suggest'); if(box) box.classList.remove('show');
+}
+function onQrAgentInput(){
+  const q = document.getElementById('qr-agent').value;
+  buildSuggestList(q,'qr-agent-suggest',(name,role)=>{
+    document.getElementById('qr-agent').value = name;
+    document.getElementById('qr-role').value = role || '';
+    closeQrAgentSuggest();
+  });
+}
+function closeQrAgentSuggest(){
+  const box=document.getElementById('qr-agent-suggest'); if(box) box.classList.remove('show');
+}
+
+/* === INSPECTOR LIST MANAGEMENT (Settings) === */
+function renderInspectorsList(){
+  const root = document.getElementById('inspectors-list');
+  if(!root) return;
+  const list = state.inspectors || [];
+  if(!list.length){
+    root.innerHTML = '<div class="little" style="color:#888;padding:10px">No agents yet. Click "Add Agent" below.</div>';
+    return;
+  }
+  root.innerHTML = list.map((i,idx)=>`
+    <div class="inspector-row">
+      <input value="${escapeAttr(i.name)}" placeholder="Full name" data-ins-name="${idx}" autocomplete="off">
+      <input value="${escapeAttr(i.role||'')}" placeholder="Job role (e.g. GSE Mechanic)" data-ins-role="${idx}" autocomplete="off">
+      <button class="remove-x" data-rm-ins="${idx}" title="Remove agent" aria-label="Remove agent">×</button>
+    </div>
+  `).join('');
+}
+function addInspector(){
+  state.inspectors = state.inspectors || [];
+  state.inspectors.push({name:'', role:''});
+  saveState(); renderInspectorsList();
+  flash('Agent added — fill in name & role','linear-gradient(135deg,#10b981,#059669)');
+  setTimeout(()=>{
+    const inputs = document.querySelectorAll('[data-ins-name]');
+    if(inputs.length) inputs[inputs.length-1].focus();
+  },50);
+}
+function resetAgentsToDefault(){
+  confirmModal('Restore default roster?',
+    'This replaces the current agent list with the 10 default SAMSIC SFO/USA agents. Any custom agents you added will be kept and merged at the bottom.',
+    ()=>{
+      const existing = state.inspectors || [];
+      const seedNames = new Set(DEFAULT_INSPECTORS.map(x=>x.name));
+      const extras = existing.filter(x=>x.name && !seedNames.has(x.name));
+      state.inspectors = [...DEFAULT_INSPECTORS, ...extras];
+      saveState(); renderInspectorsList();
+      flash('Default roster restored ✓','linear-gradient(135deg,#10b981,#059669)');
+    });
+}
+
+/* === EQUIPMENT STATION TABS === */
+function setEquipmentStation(st){
+  state.equipmentStation = st;
+  saveState();
+  document.querySelectorAll('.station-tab').forEach(b=>{
+    b.classList.toggle('active', b.dataset.eqst===st);
+  });
+  const lbl = document.getElementById('eq-station-label');
+  if(lbl) lbl.textContent = st+' • Master list — changes apply to all dates';
+  renderEquipment();
+}
+
+/* === QR CODE GENERATION ===
+   Three modes, chosen automatically:
+     A. QR_BASE_URL set        → encode  <host>/exec?qr=<gseId>   (scan opens the form)
+     B. Page served via http/s → encode  <currentUrl>?qr=<gseId>  (scan opens the form)
+     C. Page opened via file:// → encode  the GSE Ref # as PLAIN TEXT (e.g. "SFBL4").
+        Phones cannot open file:// URLs to a Mac, so we encode the Ref # instead —
+        scanning shows "SFBL4" on the phone, which workers can use to report manually.   */
+function qrHostMode(){
+  if (typeof QR_BASE_URL === 'string' && QR_BASE_URL.trim()) return 'hosted';
+  if (location.protocol === 'http:' || location.protocol === 'https:') return 'live';
+  return 'plain';   // file:// or anything else → plain-text fallback
+}
+function qrBaseUrl(){
+  if (qrHostMode() === 'hosted'){
+    return QR_BASE_URL.trim().replace(/\?.*$/, '');
+  }
+  return (location.origin || '') + location.pathname;
+}
+function qrIsConfigured(){ return qrHostMode() !== 'plain'; }
+function qrUrlFor(gseId){
+  if (qrHostMode() === 'plain'){
+    // Plain-text fallback: encode the GSE's Ref # (or id) so phone scanners show it.
+    const eq = state.equipment.find(e=>e.id===gseId);
+    return (eq && eq.ref) ? eq.ref : gseId;
+  }
+  const sep = qrBaseUrl().includes('?') ? '&' : '?';
+  return qrBaseUrl() + sep + 'qr=' + encodeURIComponent(gseId);
+}
+let __currentQrEqId = null;
+async function showQrCode(eqId){
+  const eq = state.equipment.find(e=>e.id===eqId);
+  if(!eq){ flash('Equipment not found','#ef4444'); return; }
+  __currentQrEqId = eqId;
+  if(typeof QRCode==='undefined' && window.__libsReady){ await window.__libsReady; }
+  if(typeof QRCode==='undefined'){ flash('QR library not loaded','#ef4444'); return; }
+  document.getElementById('qr-title').textContent = `${eq.name} — ${eq.ref || '(no ref)'}`;
+  const _mode = qrHostMode();
+  const _encoded = qrUrlFor(eqId);
+  let _info;
+  if (_mode === 'plain'){
+    _info = `<b>${escapeHTML(eq.name)} • ${escapeHTML(eq.ref||'—')}</b>
+      <div style="margin:6px 0 8px;font-size:12px;color:var(--good)">✓ Auto-generated. Print or download now and stick it on the equipment.</div>
+      <div style="margin:6px 0 8px;padding:8px 10px;border-radius:8px;background:rgba(59,130,246,.10);border:1px solid rgba(59,130,246,.45);color:#bfdbfe;font-size:11px;line-height:1.5;text-align:left">
+        ℹ <b>Plain-text mode.</b> This QR encodes <code style="color:#fff;font-weight:700">${escapeHTML(_encoded)}</code>.
+        When a worker scans it with any phone, their camera shows the Ref # so they know which GSE to report on.
+      </div>
+      Encoded value: <span style="color:var(--violet-2);font-family:'JetBrains Mono';font-size:12px;font-weight:700">${escapeHTML(_encoded)}</span>`;
+  } else {
+    _info = `<b>${escapeHTML(eq.name)} • ${escapeHTML(eq.ref||'—')}</b>
+      <div style="margin:6px 0 8px;font-size:12px;color:var(--good)">✓ Auto-generated. Print or download now and stick it on the equipment.</div>
+      Agents scan this QR to report an issue. URL: <span style="color:var(--violet-2);font-family:'JetBrains Mono';font-size:11px">${escapeHTML(_encoded)}</span>`;
+  }
+  document.getElementById('qr-info').innerHTML = _info;
+  const cont = document.getElementById('qr-canvas');
+  cont.innerHTML='';
+  new QRCode(cont, {
+    text: qrUrlFor(eqId),
+    width:240, height:240,
+    correctLevel: QRCode.CorrectLevel.H
+  });
+  document.getElementById('qr-bg').classList.add('show');
+}
+function closeQrModal(){ document.getElementById('qr-bg').classList.remove('show'); __currentQrEqId=null; }
+function downloadQrPng(){
+  const eq = state.equipment.find(e=>e.id===__currentQrEqId);
+  const canvas = document.querySelector('#qr-canvas canvas');
+  if(!canvas || !eq) return;
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL('image/png');
+  a.download = `QR_${eq.ref||eq.name}.png`;
+  a.click();
+}
+function printSingleQr(){
+  const eq = state.equipment.find(e=>e.id===__currentQrEqId);
+  const canvas = document.querySelector('#qr-canvas canvas');
+  if(!canvas || !eq){ flash('Generate QR first','#ef4444'); return; }
+  const png = canvas.toDataURL('image/png');
+  const w = window.open('','printQr','width=500,height=700');
+  w.document.write(`<html><head><title>QR — ${eq.name} ${eq.ref}</title>
+    <style>body{font-family:Arial;text-align:center;padding:40px}
+    h2{margin:0 0 4px}.r{font-family:monospace;color:#666;letter-spacing:2px;margin-bottom:18px}
+    img{width:300px;height:300px}.url{font-size:11px;color:#888;margin-top:18px;word-break:break-all}</style>
+    </head><body>
+    <h2>${escapeHTML(eq.name)}</h2>
+    <div class="r">${escapeHTML(eq.ref||'')}</div>
+    <img src="${png}">
+    <div style="margin-top:18px;font-size:14px;font-weight:700">SAMSIC AIRPORT — Scan to Report Issue</div>
+    <div class="url">${escapeHTML(qrUrlFor(eq.id))}</div>
+    </body></html>`);
+  w.document.close();
+  setTimeout(()=>{ w.print(); }, 600);
+}
+async function printAllQRCodes(){
+  if(typeof QRCode==='undefined' && window.__libsReady){ await window.__libsReady; }
+  if(typeof QRCode==='undefined'){ flash('QR library not loaded','#ef4444'); return; }
+  const st = state.equipmentStation || 'SFO';
+  const list = state.equipment.filter(e=>(e.stations||['SFO']).includes(st));
+  if(!list.length){ flash('No equipment to print','#facc15'); return; }
+  flash('Building printable sheet… '+list.length+' codes','#fff');
+  // Build the QR PNGs in a hidden container
+  const tempContainer = document.createElement('div');
+  tempContainer.style.position='fixed'; tempContainer.style.left='-99999px';
+  document.body.appendChild(tempContainer);
+  const cards = [];
+  for(const eq of list){
+    const div = document.createElement('div');
+    tempContainer.appendChild(div);
+    new QRCode(div,{text:qrUrlFor(eq.id),width:200,height:200,correctLevel:QRCode.CorrectLevel.H});
+    await new Promise(r=>setTimeout(r,30)); // let QRCode render
+    const canvas = div.querySelector('canvas');
+    const png = canvas ? canvas.toDataURL('image/png') : '';
+    cards.push({eq, png});
+  }
+  document.body.removeChild(tempContainer);
+
+  const w = window.open('','printAllQr','width=900,height=1200');
+  w.document.write(`<html><head><title>SAMSIC ${st} • GSE QR Codes</title>
+    <style>
+    body{font-family:Arial;margin:0;padding:18px;background:#fff;color:#000}
+    h1{margin:0 0 4px;font-size:20px}.station{color:#666;margin-bottom:18px;font-size:13px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .card{border:2px solid #000;border-radius:10px;padding:12px;text-align:center;page-break-inside:avoid}
+    .card img{width:160px;height:160px;display:block;margin:0 auto}
+    .card h3{margin:8px 0 2px;font-size:13px}
+    .card .r{font-family:monospace;font-weight:bold;font-size:11px;letter-spacing:1.5px;color:#444}
+    .card .tag{font-size:9px;color:#666;margin-top:4px;letter-spacing:1px;text-transform:uppercase}
+    @media print{ .grid{gap:8px} body{padding:8px} .card{padding:8px} .card img{width:140px;height:140px} }
+    </style>
+    </head><body>
+    <h1>SAMSIC • GSE QR Codes — ${st}</h1>
+    <div class="station">Print these stickers and attach to each piece of equipment. Agents scan to report issues.</div>
+    <div class="grid">
+      ${cards.map(c=>`
+        <div class="card">
+          <img src="${c.png}">
+          <h3>${escapeHTML(c.eq.name)}</h3>
+          <div class="r">${escapeHTML(c.eq.ref||'—')}</div>
+          <div class="tag">Scan to Report</div>
+        </div>`).join('')}
+    </div>
+    </body></html>`);
+  w.document.close();
+  setTimeout(()=>{ w.print(); }, 800);
+}
+
+/* === QR SCAN FORM (when ?qr=<id> in URL) === */
+let __qrPhotos = [];
+/* ── QR LOCATION LIST (gates / plots / hard stands) ──
+   The list is shared across every device via settings/global.qrLocations
+   in Firestore (same doc that already syncs inspectors + items + logo).
+   Anyone can type any text into the input — the datalist is just suggestions.
+   ＋ Save promotes the current text into the shared list. */
+const QR_LOC_DEFAULTS = (function(){
+  const list = [];
+  // SFO Terminal A
+  ['A1','A2','A5','A6','A8','A9','A10A','A11','A12A','A13'].forEach(g=>list.push('A • '+g));
+  // SFO Terminal B
+  ['B4','B5','B11','B20'].forEach(g=>list.push('B • '+g));
+  // SFO Plots (user-provided)
+  ['2-2','9','41','50'].forEach(p=>list.push('Plot '+p));
+  // SFO Hard Stands — 1 through 30 (common range; user can add more)
+  for(let i=1;i<=30;i++) list.push('Hard Stand '+i);
+  // ORD Gates M1 through M40
+  for(let i=1;i<=40;i++) list.push('M'+i);
+  return list;
+})();
+
+function getQrLocations(){
+  // Merge built-in defaults + any user-added entries, dedupe, preserve order.
+  const seen = new Set();
+  const out = [];
+  const push = (v)=>{ const t = (v||'').trim(); if(t && !seen.has(t.toLowerCase())){ seen.add(t.toLowerCase()); out.push(t); } };
+  QR_LOC_DEFAULTS.forEach(push);
+  (state.qrLocations||[]).forEach(push);
+  return out;
+}
+function renderQrLocationList(){
+  const dl = document.getElementById('qr-location-list');
+  if(!dl) return;
+  dl.innerHTML = getQrLocations().map(v=>`<option value="${escapeAttr(v)}">`).join('');
+}
+async function addQrLocation(){
+  const inp = document.getElementById('qr-location');
+  const raw = (inp && inp.value || '').trim();
+  if(!raw){
+    alert('Type the gate / plot / hard-stand name in the box first, then tap ＋ Save.\n\nYou can save several at once:\n  • Comma list:  M5, M6, M7\n  • Range:       M1-M40   (or Plot 1-Plot 20)');
+    return;
+  }
+  // Expand a range like "M1-M40" or "Plot 1-Plot 20" / "Hard Stand 5-Hard Stand 12"
+  const expanded = expandLocationRange(raw);
+  state.qrLocations = state.qrLocations || [];
+  const before = state.qrLocations.length;
+  const existing = new Set(getQrLocations().map(x=>x.toLowerCase()));
+  expanded.forEach(v=>{
+    const t = v.trim();
+    if(t && !existing.has(t.toLowerCase())){
+      state.qrLocations.push(t);
+      existing.add(t.toLowerCase());
+    }
+  });
+  const added = state.qrLocations.length - before;
+  saveState();
+  // Push to Firestore so every device sees the new options instantly
+  try{
+    const fb = window.__fb;
+    if(fb && fb.initialized){
+      const {db, doc, setDoc} = fb;
+      await setDoc(doc(db,'settings','global'), {qrLocations: state.qrLocations}, {merge:true});
+    }
+  }catch(e){ console.warn('qrLocations push',e); }
+  renderQrLocationList();
+  if(added) flash(`✓ ${added} location${added>1?'s':''} added — synced to all devices`,'linear-gradient(135deg,#10b981,#059669)');
+  else      flash('Already in the list','linear-gradient(135deg,#7c3aed,#4c1d95)');
+}
+function expandLocationRange(raw){
+  // "M1-M40"   → M1 … M40
+  // "Plot 1-Plot 20" → Plot 1 … Plot 20
+  // "Hard Stand 1-Hard Stand 12" → Hard Stand 1 … Hard Stand 12
+  // "M1, M5, M10" → split by comma
+  // anything else → single entry
+  // If the user typed multiple items separated by commas/semicolons, handle each.
+  return raw.split(/[,;]+/).flatMap(part=>{
+    const s = part.trim();
+    if(!s) return [];
+    const m = s.match(/^(.*?)(\d+)\s*-\s*(?:\1)?\s*(\d+)$/i);
+    if(m){
+      const prefix = m[1];
+      const a = parseInt(m[2],10), b = parseInt(m[3],10);
+      if(isFinite(a) && isFinite(b) && b>=a && (b-a) < 200){
+        const out = [];
+        for(let i=a;i<=b;i++) out.push(`${prefix}${i}`);
+        return out;
+      }
+    }
+    return [s];
+  });
+}
+
+function checkQrUrl(){
+  const params = new URLSearchParams(location.search);
+  const qrId = params.get('qr');
+  if(!qrId) return false;
+  // Need equipment data first — wait until state is loaded
+  setupQrForm(qrId);
+  return true;
+}
+async function setupQrForm(qrId){
+  // Hide main app
+  const app = document.getElementById('app-root');
+  if(app) app.style.display='none';
+  const stickyTop = document.getElementById('sticky-top'); if(stickyTop) stickyTop.style.display='none';
+  document.getElementById('qr-view').classList.add('show');
+  // Wait until equipment is available from Firebase (it may not be in localStorage on a fresh device)
+  const findEq = ()=> state.equipment.find(e=>e.id===qrId);
+  let eq = findEq();
+  if(!eq){
+    // wait up to 5s
+    for(let i=0;i<25 && !eq;i++){ await new Promise(r=>setTimeout(r,200)); eq = findEq(); }
+  }
+  if(!eq){
+    document.getElementById('qr-form-wrap').innerHTML = `
+      <h1>QR Not Found</h1>
+      <p style="color:var(--txt-dim)">This QR code is not linked to a known GSE. It may have been removed.</p>
+      <button class="qr-submit-btn" onclick="location.href=location.pathname">Open SAMSIC GSE</button>`;
+    return;
+  }
+  document.getElementById('qr-gse').value = `${eq.name} • ${eq.ref||'—'}`;
+  document.getElementById('qr-gse').dataset.gseId = eq.id;
+  document.getElementById('qr-date').value = todayStr();
+  document.getElementById('qr-photo-input').addEventListener('change', onQrPhotoChange);
+  document.getElementById('qr-photo-camera').addEventListener('change', onQrPhotoChange);
+  // Build the Gate dropdown options based on the GSE's station(s) — SFO vs ORD have different gates.
+  try{ populateQrGateOptions(eq); }catch(e){ console.warn('gate options',e); }
+  // Legacy datalist (kept for backwards-compat; safe no-op if element absent)
+  try{ renderQrLocationList(); }catch(e){ console.warn('qr loc list',e); }
+}
+
+/* === Build the Gate <select> options based on which station this GSE belongs to ===
+   SFO  →  A1-A14 (skipping A11), B4-B21 subset, Plot 2/9/41/50, Hard Stand, Others
+   ORD  →  M1-M40, Hard Stand, Others
+   Both →  show both lists in separate optgroups                                       */
+function populateQrGateOptions(eq){
+  const sel = document.getElementById('qr-gate');
+  if(!sel) return;
+  const stations = (eq && eq.stations && eq.stations.length) ? eq.stations : ['SFO'];
+  const isSFO = stations.includes('SFO');
+  const isORD = stations.includes('ORD');
+  let html = '<option value="">— Select a gate —</option>';
+  if (isSFO){
+    html += '<optgroup label="SFO — A Gates">' +
+      ['A1','A2','A3','A4','A5','A6','A7','A8','A9','A10','A12','A13','A14']
+        .map(g=>`<option>${g}</option>`).join('') +
+      '</optgroup>';
+    html += '<optgroup label="SFO — B Gates">' +
+      ['B4','B5','B11','B19','B20','B21']
+        .map(g=>`<option>${g}</option>`).join('') +
+      '</optgroup>';
+    html += '<optgroup label="SFO — Plots">' +
+      ['Plot 2','Plot 9','Plot 41','Plot 50']
+        .map(g=>`<option>${g}</option>`).join('') +
+      '</optgroup>';
+  }
+  if (isORD){
+    let opts = '';
+    for (let i=1;i<=40;i++) opts += `<option>M${i}</option>`;
+    html += '<optgroup label="ORD — M Gates">' + opts + '</optgroup>';
+  }
+  // Hard Stand + Others are universal (apply to either station).
+  html += '<option value="Hard Stand">Hard Stand</option>';
+  html += '<option value="Others">Others (specify)</option>';
+  sel.innerHTML = html;
+  // Update the field label to reflect station context
+  const lbl = document.getElementById('qr-gate-label');
+  if (lbl){
+    lbl.textContent = isORD && !isSFO ? 'Gate (ORD)'
+                    : isSFO && !isORD ? 'Gate (SFO)'
+                    : 'Gate';
+  }
+}
+function onQrPhotoChange(e){
+  const files = Array.from(e.target.files||[]);
+  Promise.all(files.map(f=>fileToDataURL(f,900,0.7))).then(urls=>{
+    __qrPhotos = __qrPhotos.concat(urls);
+    renderQrPhotoPreview();
+    e.target.value='';
+  });
+}
+function renderQrPhotoPreview(){
+  const root = document.getElementById('qr-photo-preview');
+  root.innerHTML = __qrPhotos.map((u,i)=>`
+    <div class="ph"><img src="${u}"><button onclick="removeQrPhoto(${i})">×</button></div>
+  `).join('');
+}
+function removeQrPhoto(i){ __qrPhotos.splice(i,1); renderQrPhotoPreview(); }
+function onQrGateChange(){
+  const sel = document.getElementById('qr-gate');
+  const wrap = document.getElementById('qr-gate-other-wrap');
+  if(!sel || !wrap) return;
+  const v = sel.value;
+  const reveal = (v === 'Others' || v === 'Hard Stand');
+  wrap.style.display = reveal ? '' : 'none';
+  // Tune the helper label + placeholder based on choice
+  const lbl = wrap.querySelector('label');
+  const inp = document.getElementById('qr-gate-other');
+  if (v === 'Hard Stand'){
+    if (lbl) lbl.textContent = 'Which Hard Stand?';
+    if (inp) inp.placeholder = 'e.g. Hard Stand 3, Hard Stand 15…';
+  } else {
+    if (lbl) lbl.textContent = 'Specify Gate / Plot / Hard Stand';
+    if (inp) inp.placeholder = 'e.g. C12, Plot 73, Hard Stand 3, M27…';
+  }
+}
+async function submitQrReport(){
+  const gseEl = document.getElementById('qr-gse');
+  const gseId = gseEl.dataset.gseId;
+  const eq = state.equipment.find(e=>e.id===gseId);
+  const date = document.getElementById('qr-date').value || todayStr();
+  // Gate dropdown + "Others" specify field
+  const gateSel = document.getElementById('qr-gate');
+  let gate = gateSel ? gateSel.value : '';
+  if(gate === 'Others'){
+    const other = (document.getElementById('qr-gate-other').value || '').trim();
+    if(!other){ alert('Please specify the gate / plot / hard stand.'); return; }
+    gate = other;
+  } else if(gate === 'Hard Stand'){
+    // Append the specific Hard Stand number if entered (otherwise keep just "Hard Stand")
+    const other = (document.getElementById('qr-gate-other').value || '').trim();
+    if(other){
+      // If they typed just a number ("3"), prefix "Hard Stand "; if they typed the full
+      // phrase ("Hard Stand 3"), use as-is.
+      gate = /^hard stand/i.test(other) ? other : 'Hard Stand ' + other;
+    }
+  }
+  const locDetail = (document.getElementById('qr-location').value || '').trim();
+  // Combine into one location string so existing reports / Firebase schema still work
+  const loc = locDetail ? `${gate} • ${locDetail}` : gate;
+  const agent= document.getElementById('qr-agent').value.trim();
+  const role = document.getElementById('qr-role').value.trim();
+  const cmt  = document.getElementById('qr-comment').value.trim();
+  // Derive "issue" summary from first line of comment (keeps existing report schema valid)
+  const issue= (cmt.split(/\n/)[0] || '').slice(0,80).trim() || 'Issue reported via QR scan';
+  if(!agent){ alert('Please enter your full name.'); return; }
+  if(!gate){ alert('Please select a gate.'); return; }
+  if(!cmt){ alert('Please describe the issue in the Comment field.'); return; }
+  const btn=document.getElementById('qr-submit');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  const report = {
+    id: 'qr_'+Math.random().toString(36).slice(2,12)+Date.now().toString(36),
+    gseId, gseName:eq?eq.name:'', gseRef:eq?eq.ref:'',
+    date, location:loc, agent, role,
+    issue, comment:cmt,
+    photos: __qrPhotos.slice(),
+    ts: Date.now()
+  };
+  // Save locally
+  state.qrReports = state.qrReports || {};
+  (state.qrReports[date] = state.qrReports[date] || []).push(report);
+  saveState();
+  // Push to Firebase under qrReports collection (best-effort)
+  try{
+    const fb = await window.__fbReady;
+    if(fb && fb.initialized){
+      const {db, doc, setDoc} = fb;
+      await setDoc(doc(db,'qrReports',report.id), report);
+    }
+  }catch(err){ console.warn('QR firebase push failed',err); }
+  // Show success screen
+  document.getElementById('qr-form-wrap').style.display='none';
+  document.getElementById('qr-success').style.display='block';
+}
+
+/* === QR REPORTS LISTING (in main app) === */
+/* ============================================================
+   PMs FILES — Preventive Maintenance PDFs per GSE.
+   Storage : Firebase Storage at  pms/{gseId}/{ts}-{filename}
+   Metadata: Firestore collection 'pms' with docs:
+             {id, gseId, gseRef, gseName, filename, storagePath,
+              sizeBytes, contentType, uploadedAt, uploadedByName, station}
+   Live-synced across devices via onSnapshot().
+============================================================ */
+state.pms = state.pms || {};   // {gseId: [ {id, filename, storagePath, sizeBytes, uploadedAt, station} ... ]}
+
+function pmsCacheUpsert(doc){
+  state.pms = state.pms || {};
+  const list = state.pms[doc.gseId] = state.pms[doc.gseId] || [];
+  const idx = list.findIndex(x=>x.id===doc.id);
+  if(idx>=0) list[idx] = doc; else list.push(doc);
+}
+function pmsCacheRemove(id){
+  Object.keys(state.pms||{}).forEach(gid=>{
+    state.pms[gid] = (state.pms[gid]||[]).filter(x=>x.id!==id);
+    if(!state.pms[gid].length) delete state.pms[gid];
+  });
+}
+
+async function subscribePms(){
+  const fb = window.__fb;
+  if(!fb || !fb.initialized) return;
+  const {db, collection, onSnapshot} = fb;
+  try{
+    onSnapshot(collection(db,'pms'), snap=>{
+      const seen = new Set();
+      snap.docs.forEach(d=>{
+        const data = {id:d.id, ...d.data()};
+        seen.add(d.id);
+        pmsCacheUpsert(data);
+      });
+      // remove cached docs that no longer exist remotely
+      Object.keys(state.pms||{}).forEach(gid=>{
+        state.pms[gid] = (state.pms[gid]||[]).filter(x=>seen.has(x.id));
+        if(!state.pms[gid].length) delete state.pms[gid];
+      });
+      if(currentTab==='pms') renderPmsSection();
+    }, err=>console.warn('pms listener',err));
+  }catch(e){ console.warn('subscribePms',e); }
+}
+
+/* ─── PMs storage strategy (no Firebase Storage / no Blaze plan needed) ───
+   • Small PDFs (≤ 700 KB raw): stored inline in pms/{id}.dataUrl as before.
+   • Bigger PDFs: split into N chunks, each stored in a SEPARATE document at
+       pms_chunks/{id}_{idx}.data
+     The main pms/{id} doc carries metadata + chunked:true + chunks:N.
+     On open we fetch every chunk, concatenate, and rebuild the Blob.
+   Firestore doc limit is ~1 MB; we keep raw chunks at 600 KB so base64
+   stays comfortably under that ceiling.
+   Net effect: PMs uploads work up to ~10 MB per PDF on the free Spark tier. */
+const PMS_INLINE_MAX_BYTES = 700 * 1024;     // single-doc threshold
+const PMS_CHUNK_RAW_BYTES  = 600 * 1024;     // chunk size before base64
+const PMS_MAX_FILE_BYTES   = 12 * 1024 * 1024; // hard cap to keep latency sane
+
+function _bufToB64(uint8){
+  // chunk to avoid `Maximum call stack size exceeded` in btoa for big buffers
+  let s = '';
+  const STEP = 0x8000;
+  for(let i=0; i<uint8.length; i+=STEP){
+    s += String.fromCharCode.apply(null, uint8.subarray(i, i+STEP));
+  }
+  return btoa(s);
+}
+function _b64ToBytes(b64){
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+async function uploadPmsFile(gseId){
+  if(!isAdminUnlocked()){ askAdminPw(()=>uploadPmsFile(gseId)); return; }
+  const eq = state.equipment.find(e=>e.id===gseId);
+  if(!eq){ flash('Equipment not found','#ef4444'); return; }
+  const inp = document.createElement('input');
+  inp.type='file'; inp.accept='application/pdf,.pdf';
+  inp.onchange = async ()=>{
+    const file = inp.files && inp.files[0];
+    if(!file) return;
+    if(file.size > PMS_MAX_FILE_BYTES){
+      alert(`This PDF is ${(file.size/1024/1024).toFixed(1)} MB — over the ${(PMS_MAX_FILE_BYTES/1024/1024).toFixed(0)} MB cap.\n\nUploads bigger than ${(PMS_MAX_FILE_BYTES/1024/1024).toFixed(0)} MB get too slow to be practical on the free tier.\nCompress with Smallpdf / Adobe, or split into separate PDFs by section.`);
+      return;
+    }
+    const fb = window.__fb;
+    if(!fb || !fb.initialized){ alert('Cloud not connected — please reload and try again.'); return; }
+    const ts = Date.now();
+    const id = `${gseId}_${ts}`;
+    const sizeKB = (file.size/1024).toFixed(0);
+    try{
+      const buf = new Uint8Array(await file.arrayBuffer());
+      const {db, doc, setDoc} = fb;
+
+      // ── Small file path (single doc, fast) ──
+      if(file.size <= PMS_INLINE_MAX_BYTES){
+        flash(`Saving ${file.name} (${sizeKB} KB)…`,'linear-gradient(135deg,#7c3aed,#4c1d95)');
+        const b64 = _bufToB64(buf);
+        const dataUrl = `data:${file.type||'application/pdf'};base64,${b64}`;
+        const meta = {
+          id, gseId,
+          gseRef: eq.ref || '',
+          gseName: eq.name || '',
+          station: (eq.stations||['SFO'])[0] || 'SFO',
+          filename: file.name,
+          sizeBytes: file.size,
+          contentType: file.type || 'application/pdf',
+          dataUrl,
+          chunked: false,
+          uploadedAt: ts,
+          uploadedByName: (state.meta && state.meta.agent) || ''
+        };
+        await setDoc(doc(db,'pms',id), meta);
+        pmsCacheUpsert(meta);
+      }
+      // ── Big file path (chunked across pms_chunks/*) ──
+      else {
+        const numChunks = Math.ceil(file.size / PMS_CHUNK_RAW_BYTES);
+        flash(`Saving ${file.name} (${sizeKB} KB → ${numChunks} chunks)…`,'linear-gradient(135deg,#7c3aed,#4c1d95)');
+        // Write chunks first so a half-written file doesn't appear if upload aborts
+        for(let i=0; i<numChunks; i++){
+          const start = i*PMS_CHUNK_RAW_BYTES;
+          const end   = Math.min(start+PMS_CHUNK_RAW_BYTES, file.size);
+          const slice = buf.subarray(start, end);
+          const b64   = _bufToB64(slice);
+          await setDoc(doc(db,'pms_chunks', `${id}_${i}`), {
+            parentId: id, idx: i, total: numChunks, data: b64
+          });
+          flash(`Uploading ${file.name} — chunk ${i+1}/${numChunks}…`,'linear-gradient(135deg,#7c3aed,#4c1d95)');
+        }
+        const meta = {
+          id, gseId,
+          gseRef: eq.ref || '',
+          gseName: eq.name || '',
+          station: (eq.stations||['SFO'])[0] || 'SFO',
+          filename: file.name,
+          sizeBytes: file.size,
+          contentType: file.type || 'application/pdf',
+          chunked: true,
+          chunks: numChunks,
+          uploadedAt: ts,
+          uploadedByName: (state.meta && state.meta.agent) || ''
+        };
+        await setDoc(doc(db,'pms',id), meta);
+        pmsCacheUpsert(meta);
+      }
+
+      renderPmsSection();
+      flash(`✓ ${file.name} saved — synced to all devices`,'linear-gradient(135deg,#10b981,#059669)');
+    }catch(err){
+      console.error('PMs save failed',err);
+      alert('Save failed: '+(err && err.message ? err.message : err));
+    }
+  };
+  inp.click();
+}
+
+async function deletePmsFile(docId){
+  if(!isAdminUnlocked()){ askAdminPw(()=>deletePmsFile(docId)); return; }
+  const found = (function(){
+    for(const k of Object.keys(state.pms||{})){
+      const m = (state.pms[k]||[]).find(x=>x.id===docId);
+      if(m) return m;
+    }
+    return null;
+  })();
+  if(!found){ flash('File not found','#ef4444'); return; }
+  confirmModal(`Remove ${found.filename}?`,'This permanently removes the PDF from the cloud master list on every device. This cannot be undone.', async ()=>{
+    const fb = window.__fb;
+    try{
+      const {db, doc, deleteDoc} = fb;
+      // Delete the metadata doc first, then any chunk docs
+      await deleteDoc(doc(db,'pms', found.id));
+      if(found.chunked && found.chunks){
+        for(let i=0; i<found.chunks; i++){
+          try{ await deleteDoc(doc(db,'pms_chunks', `${found.id}_${i}`)); }catch(e){}
+        }
+      }
+      pmsCacheRemove(found.id);
+      renderPmsSection();
+      flash('Removed','linear-gradient(135deg,#ef4444,#7f1d1d)');
+    }catch(err){
+      console.error('delete failed',err);
+      alert('Delete failed: '+(err && err.message ? err.message : err));
+    }
+  });
+}
+
+async function openPmsFile(docId){
+  const found = (function(){
+    for(const k of Object.keys(state.pms||{})){
+      const m = (state.pms[k]||[]).find(x=>x.id===docId);
+      if(m) return m;
+    }
+    return null;
+  })();
+  if(!found){ flash('File not found — try Refresh','#f59e0b'); return; }
+  try{
+    let bytes = null;
+    let mime  = found.contentType || 'application/pdf';
+
+    if(found.chunked && found.chunks){
+      // Reassemble chunks
+      const fb = window.__fb;
+      if(!fb || !fb.initialized){ flash('Cloud not connected — try Refresh','#f59e0b'); return; }
+      flash(`Loading ${found.filename}… (${found.chunks} chunks)`,'linear-gradient(135deg,#7c3aed,#4c1d95)');
+      const {db, doc, getDoc} = fb;
+      const parts = [];
+      for(let i=0; i<found.chunks; i++){
+        const snap = await getDoc(doc(db,'pms_chunks', `${found.id}_${i}`));
+        if(!snap.exists()){ throw new Error(`Missing chunk ${i+1}/${found.chunks} — upload may have failed. Try re-uploading.`); }
+        parts.push(_b64ToBytes(snap.data().data));
+      }
+      // Concatenate all chunks into a single Uint8Array
+      const total = parts.reduce((n,p)=>n+p.length, 0);
+      bytes = new Uint8Array(total);
+      let off = 0;
+      parts.forEach(p=>{ bytes.set(p, off); off += p.length; });
+    } else {
+      // Single-doc inline base64
+      const src = found.dataUrl || found.downloadUrl;
+      if(!src){ flash('No file data — try Refresh','#f59e0b'); return; }
+      if(src.startsWith('data:')){
+        const [hdr, b64] = src.split(',');
+        mime  = (hdr.match(/data:([^;]+)/)||[])[1] || mime;
+        bytes = _b64ToBytes(b64);
+      } else {
+        window.open(src, '_blank', 'noopener');   // legacy external URL
+        return;
+      }
+    }
+
+    const blob = new Blob([bytes], {type: mime});
+    const url  = URL.createObjectURL(blob);
+    window.open(url, '_blank', 'noopener');
+    setTimeout(()=>URL.revokeObjectURL(url), 90*1000);
+  }catch(err){
+    console.error('open failed',err);
+    alert('Could not open: '+(err && err.message ? err.message : err));
+  }
+}
+
+function setPmsStation(st){
+  state.pmsStation = st;
+  saveState();
+  document.querySelectorAll('#pms-station-tabs .station-tab').forEach(b=>{
+    b.classList.toggle('active', b.dataset.pmsst===st);
+  });
+  const lbl = document.getElementById('pms-station-label');
+  if(lbl) lbl.textContent = `📂 ${st} • Preventive Maintenance — PDF docs per GSE`;
+  renderPmsSection();
+}
+
+function renderPmsSection(){
+  const root = document.getElementById('pms-groups');
+  if(!root) return;
+  // Default station to the user's current inspection station, or last-used PMs station
+  if(!state.pmsStation) state.pmsStation = state.meta?.station || 'SFO';
+  const stFilter = state.pmsStation;
+  // Sync the station-tab UI in case render was called without going through setPmsStation
+  document.querySelectorAll('#pms-station-tabs .station-tab').forEach(b=>{
+    b.classList.toggle('active', b.dataset.pmsst===stFilter);
+  });
+  const lbl = document.getElementById('pms-station-label');
+  if(lbl) lbl.textContent = `📂 ${stFilter} • Preventive Maintenance — PDF docs per GSE`;
+
+  const q = (document.getElementById('pms-search-input')?.value || '').toLowerCase().trim();
+  // Build groups: category → equipment list (only equipment for the active station)
+  const buckets = {};
+  state.equipment
+    .filter(eq => (eq.stations||['SFO']).includes(stFilter))
+    .forEach(eq => {
+      const k = detectGroup(eq.ref);
+      (buckets[k] = buckets[k]||[]).push(eq);
+    });
+  Object.keys(buckets).forEach(k => buckets[k].sort(naturalSortByRef));
+
+  const groupsToRender = GROUPS.filter(g=>buckets[g.key] && buckets[g.key].length);
+  root.innerHTML = '';
+  if(!groupsToRender.length){
+    root.innerHTML = `<div class="footer" style="margin-top:0;text-align:center;padding:30px">
+      <div style="font-size:32px">📂</div>
+      <div style="margin-top:10px">No equipment for ${stFilter} yet.</div></div>`;
+    return;
+  }
+
+  let totalShown = 0;
+  groupsToRender.forEach(g=>{
+    const items = buckets[g.key];
+    // Filter by search query (against equipment ref/name OR any of its file names)
+    const filteredItems = items.filter(eq=>{
+      if(!q) return true;
+      const refn = `${eq.name} ${eq.ref}`.toLowerCase();
+      if(refn.includes(q)) return true;
+      const files = state.pms[eq.id] || [];
+      return files.some(f => (f.filename||'').toLowerCase().includes(q));
+    });
+    if(!filteredItems.length) return;
+    const sec = document.createElement('div');
+    sec.className = 'group-section pms-group';
+    const header = document.createElement('div');
+    header.className = 'group-header';
+    header.innerHTML = `
+      <div class="group-icon-box">${iconFor(filteredItems[0].name, filteredItems[0].ref)}</div>
+      <div class="group-title">
+        <h2>${g.name}</h2>
+        <p>${filteredItems.length} GSE • ${filteredItems.reduce((n,e)=>n+(state.pms[e.id]||[]).length,0)} PDF${filteredItems.reduce((n,e)=>n+(state.pms[e.id]||[]).length,0)===1?'':'s'}</p>
+      </div>
+      <div class="group-toggle">▼</div>`;
+    header.style.cursor='pointer';
+    sec.appendChild(header);
+    const wrap = document.createElement('div');
+    wrap.className = 'pms-eq-list';
+    filteredItems.forEach(eq=>{
+      const files = state.pms[eq.id] || [];
+      totalShown += files.length;
+      const card = document.createElement('div');
+      card.className = 'pms-eq';
+      card.innerHTML = `
+        <div class="pms-eq-head">
+          <div class="pms-eq-title">
+            <b>${escapeHTML(eq.ref || '(no ref)')}</b>
+            <span style="color:var(--txt-dim);font-size:12px;margin-left:8px">${escapeHTML(eq.name)}</span>
+          </div>
+          <button class="btn btn-primary" onclick="uploadPmsFile('${eq.id}')" style="padding:7px 12px;font-size:11px">＋ Add PDF</button>
+        </div>
+        <div class="pms-files">
+          ${files.length ? files.sort((a,b)=>(b.uploadedAt||0)-(a.uploadedAt||0)).map(f=>`
+            <div class="pms-file-row">
+              <div class="pms-file-info">
+                <span class="pms-file-icon">📄</span>
+                <div>
+                  <div class="pms-file-name">${escapeHTML(f.filename)}</div>
+                  <div class="pms-file-meta">${formatBytes(f.sizeBytes||0)} • ${formatDateTime(f.uploadedAt)}${f.uploadedByName?` • ${escapeHTML(f.uploadedByName)}`:''}</div>
+                </div>
+              </div>
+              <div class="pms-file-actions">
+                <button class="btn" onclick="openPmsFile('${f.id}')" title="View / Download" style="padding:7px 12px;font-size:11px">⬇ Open</button>
+                <button class="btn btn-outline-red" onclick="deletePmsFile('${f.id}')" title="Remove" style="padding:7px 12px;font-size:11px">🗑</button>
+              </div>
+            </div>`).join('') : `<div class="pms-empty">No PDFs yet — tap "＋ Add PDF" to upload one.</div>`}
+        </div>`;
+      wrap.appendChild(card);
+    });
+    sec.appendChild(wrap);
+    root.appendChild(sec);
+    // Collapsible
+    header.addEventListener('click', ()=>{
+      sec.classList.toggle('collapsed');
+    });
+  });
+}
+
+function formatBytes(n){
+  if(!n) return '0 B';
+  const u = ['B','KB','MB','GB'];
+  let i = 0, x = n;
+  while(x>=1024 && i<u.length-1){ x/=1024; i++; }
+  return `${x.toFixed(x<10 && i>0?1:0)} ${u[i]}`;
+}
+function formatDateTime(ts){
+  if(!ts) return '—';
+  try{
+    const d = new Date(ts);
+    return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  }catch(e){ return '—'; }
+}
+
+function renderQrReports(){
+  const root = document.getElementById('qr-reports-list');
+  if(!root) return;
+  document.querySelectorAll('[data-qrdate]').forEach(b=>b.classList.toggle('active', b.dataset.qrdate===(state.qrFilter||'all')));
+  const sel = document.getElementById('qr-chip-selected');
+  if(sel) sel.textContent = 'Selected Day ('+state.selectedDate+')';
+  const all = state.qrReports || {};
+  let dates = Object.keys(all).sort().reverse();
+  if((state.qrFilter||'all')==='selected') dates = dates.filter(d=>d===state.selectedDate);
+  if(!dates.length){
+    root.innerHTML = `<div class="an-card span4" style="text-align:center;padding:40px">
+      <h3 style="color:var(--violet-2)">No QR Reports Yet</h3>
+      <div class="little" style="color:#888;margin-top:10px">When agents scan a GSE QR code and submit a report, it will appear here, linked to the date they submitted.</div>
+    </div>`;
+    return;
+  }
+  root.innerHTML = dates.map(d=>{
+    const items = all[d];
+    return `<div class="an-card span4">
+      <h3>${new Date(d+'T12:00:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'2-digit',year:'numeric'})} <span style="float:right;color:var(--violet-2)">${items.length} report${items.length>1?'s':''}</span></h3>
+      ${items.map(r=>`
+        <div class="qr-report-card">
+          <div class="hd">
+            <b>${escapeHTML(r.gseName||'')} • ${escapeHTML(r.gseRef||'—')}</b>
+            <span class="hpill warn">${escapeHTML(r.location||'')}</span>
+          </div>
+          <div class="meta">
+            <div><b>Agent:</b> ${escapeHTML(r.agent||'—')} ${r.role?`<span style="color:var(--violet-2)">• ${escapeHTML(r.role)}</span>`:''}</div>
+            <div><b>Issue:</b> ${escapeHTML(r.issue||'—')}</div>
+            ${r.comment?`<div><b>Comment:</b> ${escapeHTML(r.comment)}</div>`:''}
+            <div style="color:#666;font-size:11px;margin-top:4px">Submitted ${new Date(r.ts||Date.now()).toLocaleString()}</div>
+          </div>
+          ${(r.photos||[]).length?`<div class="photos">${r.photos.map(p=>`<img src="${p}">`).join('')}</div>`:''}
+          <div style="margin-top:8px;display:flex;gap:6px">
+            <button class="mini-btn danger" data-rm-qr="${d}|${r.id}">🗑 Delete</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+  }).join('');
+}
+
+/* === TOOLBAR TAB CLICKS (always-visible toolbar) === */
+document.querySelectorAll('#tabs .tab').forEach(t=>{
+  t.addEventListener('click', ()=>{
+    const name = t.dataset.tab;
+    if(name) switchTab(name);
   });
 });
+
+/* === GLOBAL SEARCH (always visible, drives the inspection list from any tab) === */
+(function wireGlobalSearch(){
+  const inp = document.getElementById('global-search-input');
+  if(!inp) return;
+  inp.addEventListener('input', ()=>{
+    // mirror into the per-tab input so the existing renderInspection() logic still works
+    const local = document.getElementById('search-input');
+    if(local) local.value = inp.value;
+    // jump to inspection tab so results are visible
+    if(currentTab !== 'inspection' && inp.value.trim()) switchTab('inspection');
+    if(typeof renderInspection === 'function') renderInspection();
+  });
+  inp.addEventListener('keydown', e=>{
+    if(e.key==='Escape'){ inp.value=''; const local=document.getElementById('search-input'); if(local) local.value=''; renderInspection(); }
+  });
+})();
 
 /* === EVENT DELEGATION === */
 document.addEventListener('click',(e)=>{
   const t=e.target;
+
+  // QR date filter chips
+  const qrd = t.closest('[data-qrdate]')?.dataset.qrdate;
+  if(qrd){ state.qrFilter = qrd; saveState(); renderQrReports(); return; }
+
+  // QR code generation button (in Equipment list)
+  const qrEq = t.closest('[data-qr-eq]')?.dataset.qrEq;
+  if(qrEq){ showQrCode(qrEq); return; }
+
+  // Delete QR report
+  const rmQr = t.closest('[data-rm-qr]')?.dataset.rmQr;
+  if(rmQr){
+    const [date, id] = rmQr.split('|');
+    confirmModal('Delete QR Report?','This will permanently remove this scan report.',async ()=>{
+      if(state.qrReports && state.qrReports[date]){
+        state.qrReports[date] = state.qrReports[date].filter(r=>r.id!==id);
+        if(!state.qrReports[date].length) delete state.qrReports[date];
+      }
+      saveState(); renderQrReports(); flash('Deleted');
+      // also remove from Firebase
+      try{
+        const fb = window.__fb;
+        if(fb && fb.initialized){
+          const {db, doc, deleteDoc} = fb;
+          await deleteDoc(doc(db,'qrReports',id));
+        }
+      }catch(err){ console.warn('qr fb delete',err); }
+    });
+    return;
+  }
+
+  // Agent remove
+  const rmIns = t.closest('[data-rm-ins]')?.dataset.rmIns;
+  if(rmIns!==undefined){
+    const idx = parseInt(rmIns);
+    const name = (state.inspectors[idx]||{}).name||'(empty)';
+    confirmModal(`Remove ${name}?`,'This agent will no longer appear in the auto-fill dropdown on any device.',()=>{
+      state.inspectors.splice(idx,1); saveState(); renderInspectorsList(); flash('Removed');
+    });
+    return;
+  }
 
   // analytics filter chips
   const fy = t.closest('[data-fyear]')?.dataset.fyear;
@@ -2376,7 +4510,7 @@ document.addEventListener('click',(e)=>{
 
   // jump to history date
   const jd = t.closest('[data-jump]')?.dataset.jump;
-  if(jd){state.selectedDate = jd; saveState(); hydrateMeta(); renderAll(); if(typeof watchSelectedDay==='function') watchSelectedDay(); document.querySelector('.tab[data-tab="inspection"]').click(); return;}
+  if(jd){state.selectedDate = jd; saveState(); hydrateMeta(); renderAll(); if(typeof watchSelectedDay==='function') watchSelectedDay(); switchTab('inspection'); return;}
 
   const exId=t.closest('[data-expand]')?.dataset.expand;
   if(exId){const r=getRecord(exId); r.open=!r.open; saveState(); renderInspection(); return;}
@@ -2388,18 +4522,68 @@ document.addEventListener('click',(e)=>{
     const item = rest.join('|');
     const value=triBtn.dataset.set;
     const r=getRecord(id);
-    r.items[item] = (r.items[item]===value)?'':value;
+    const newVal = (r.items[item]===value) ? '' : value;
+    r.items[item] = newVal;
+    // ── Persistent-issue bookkeeping ──
+    const eq = state.equipment.find(e=>e.id===id);
+    if(eq){
+      eq.persistentIssues = eq.persistentIssues || {};
+      r.itemsCleared = r.itemsCleared || {};
+      r.itemsInheritedFail = r.itemsInheritedFail || {};
+      if(newVal === 'fail'){
+        // New (or re-confirmed) failure → flag as a sticky issue.
+        eq.persistentIssues[item] = true;
+        delete r.itemsCleared[item];
+        delete r.itemsInheritedFail[item];     // user explicitly set it, no longer "inherited"
+      } else if(newVal === 'pass' || newVal === 'na'){
+        // Item is now resolved → clear the sticky flag for everyone, and
+        // remember on this specific day that the user explicitly cleared it
+        // so the override-on-read doesn't snap it back.
+        delete eq.persistentIssues[item];
+        if(!Object.keys(eq.persistentIssues).length) delete eq.persistentIssues;
+        r.itemsCleared[item] = true;
+        delete r.itemsInheritedFail[item];
+        flash(`✓ ${item} cleared on this GSE — won't carry over anymore`,'linear-gradient(135deg,#10b981,#059669)');
+      }
+      // newVal === '' (toggled off) → leave the persistentIssues alone; user is undecided
+    }
     saveState(); renderInspection(); return;
   }
 
   const oosId=t.closest('[data-oos]')?.dataset.oos;
-  if(oosId){const r=getRecord(oosId); r.oos=!r.oos; saveState(); renderInspection(); return;}
+  if(oosId){
+    const r=getRecord(oosId);
+    r.oos=!r.oos;
+    // Mark this day's record as user-decided so getRecord() doesn't override it later.
+    if(r.oos){
+      delete r.oosUserCleared;
+    } else {
+      r.oosUserCleared = true;
+    }
+    // Persistent OOS — flip the sticky flag on the equipment master so today + every
+    // future day inherits it. Pushed to Firestore so iPad / phone / Mac stay in sync.
+    const eq=state.equipment.find(e=>e.id===oosId);
+    if(eq){ eq.persistentOOS = !!r.oos; }
+    if(r.oos) flash('🔁 Marked Out of Service — will stay OOS on every future day (and every device) until you tap it again','linear-gradient(135deg,#ef4444,#7f1d1d)');
+    else      flash('Cleared Out of Service — won’t carry over to future days','linear-gradient(135deg,#10b981,#059669)');
+    saveState(); renderInspection(); return;
+  }
 
   const apId=t.closest('[data-allpass]')?.dataset.allpass;
   if(apId){
     const r=getRecord(apId);
     state.inspectionItems.forEach(i=>{ if(r.items[i]!=='na') r.items[i]='pass';});
-    r.oos=false; saveState(); renderInspection(); return;
+    r.oos=false;
+    r.oosUserCleared = true;          // explicit "all pass" = user-cleared on this day
+    r.itemsCleared = r.itemsCleared || {};
+    r.itemsInheritedFail = {};
+    state.inspectionItems.forEach(i=>{ r.itemsCleared[i] = true; });
+    const eq=state.equipment.find(e=>e.id===apId);
+    if(eq){
+      eq.persistentOOS = false;        // and clear the sticky flag everywhere
+      delete eq.persistentIssues;      // all items now passing → clear all sticky issues
+    }
+    saveState(); renderInspection(); return;
   }
 
   const clrId=t.closest('[data-clear]')?.dataset.clear;
@@ -2409,6 +4593,14 @@ document.addEventListener('click',(e)=>{
     const naList = eq?(NA_DEFAULTS[eq.name]||[]):[];
     state.inspectionItems.forEach(i=>{ r.items[i] = naList.includes(i)?'na':'';});
     r.comments=''; r.damage=[]; r.oos=false;
+    r.oosUserCleared = true;
+    r.itemsInheritedFail = {};
+    // Reset wipes the day → don't keep stale "cleared" markers either; user is starting fresh.
+    delete r.itemsCleared;
+    if(eq){
+      eq.persistentOOS = false;        // explicit "reset" clears persistent OOS
+      delete eq.persistentIssues;      // also clears persistent issues
+    }
     saveState(); renderInspection(); return;
   }
 
@@ -2511,6 +4703,19 @@ document.addEventListener('change',(e)=>{
 
 document.addEventListener('input',(e)=>{
   const t=e.target;
+  // Inspector name / role edits in Settings list
+  const insN=t.dataset?.insName;
+  if(insN!==undefined){
+    const idx=parseInt(insN);
+    if(state.inspectors[idx]){ state.inspectors[idx].name = t.value; debounceSave(); }
+    return;
+  }
+  const insR=t.dataset?.insRole;
+  if(insR!==undefined){
+    const idx=parseInt(insR);
+    if(state.inspectors[idx]){ state.inspectors[idx].role = t.value; debounceSave(); }
+    return;
+  }
   const nId=t.dataset?.name;
   if(nId){const eq=state.equipment.find(x=>x.id===nId); if(eq){eq.name=t.value; debounceSave(); refreshKPIs();} return;}
   const rId=t.dataset?.ref;
@@ -2531,7 +4736,7 @@ document.addEventListener('input',(e)=>{
     debounceSave();
     return;
   }
-  if(['agent-name','agent-id','insp-shift','insp-station','insp-super','insp-weather'].includes(t.id)){
+  if(['agent-name','agent-role','insp-shift','insp-station','insp-weather'].includes(t.id)){
     syncMetaFromInputs(); debounceSave();
     if(t.id==='insp-station') renderInspection();   // station change → reload list
   }
@@ -2578,19 +4783,39 @@ function fileToDataURL(file,maxW,quality){
 
 function addNewGSE(){ addNewEquipment(); }
 function addNewEquipment(){
+  // Admin-only action — block viewers from adding equipment
+  if(!isAdminUnlocked()){
+    askAdminPw(()=>addNewEquipment());
+    return;
+  }
   const name = prompt('Equipment Type / Name (e.g. Cargo Loader Diesel)');
   if(!name) return;
-  const ref  = prompt('Reference # (e.g. SFCL6)') || '';
-  const stationChoice = prompt('Which station(s)?\nType:  1  for SFO only\n        2  for ORD only\n        3  for BOTH (SFO + ORD)','1');
+  const ref  = (prompt('Reference # (e.g. SFCL6, SFBT12)') || '').trim().toUpperCase();
+  if(!ref){
+    if(!confirm('No reference # entered. The QR code will use a random ID. Continue?')) return;
+  } else {
+    // Prevent silent duplicate refs which break QR scanning
+    const dup = state.equipment.find(e=>(e.ref||'').toUpperCase() === ref);
+    if(dup){
+      alert(`A GSE with ref "${ref}" already exists (${dup.name}). Use a unique ref.`);
+      return;
+    }
+  }
+  // Default to the equipment view's current station when adding from there, otherwise current meta station
+  const defaultStation = (currentTab==='equipment' ? state.equipmentStation : state.meta.station) || 'SFO';
+  const defaultChoice = defaultStation==='ORD'?'2':'1';
+  const stationChoice = prompt('Which station(s)?\nType:  1  for SFO only\n        2  for ORD only\n        3  for BOTH (SFO + ORD)', defaultChoice);
   if(stationChoice===null) return;
   let stations = ['SFO'];
   if(stationChoice.trim()==='2') stations=['ORD'];
   else if(stationChoice.trim()==='3') stations=['SFO','ORD'];
-  const eq = {id:uid(), name:name.trim(), ref:ref.trim().toUpperCase(), photo:'', stations};
+  const eq = {id:uid(), name:name.trim(), ref:ref, photo:'', stations};
   state.equipment.push(eq);
   saveState();
   renderAll();
-  flash('Added '+name+' • '+stations.join(' + '));
+  flash(`✓ ${name} (${ref||'no ref'}) added — generating QR code…`,'linear-gradient(135deg,#10b981,#059669)');
+  // Auto-open the QR preview so the user can print / download immediately.
+  setTimeout(()=>showQrCode(eq.id), 350);
 }
 
 function confirmReset(){
@@ -2653,7 +4878,7 @@ async function buildPDFBlob(){
   const prevOpen={};state.equipment.forEach(eq=>{const r=getRecord(eq.id);prevOpen[eq.id]=r.open;r.open=true;});
   const prevCollapse={...state.collapsedGroups};GROUPS.forEach(g=>state.collapsedGroups[g.key]=false);
   const wasTab=currentTab;
-  document.querySelector('.tab[data-tab="inspection"]').click();
+  switchTab('inspection');
   // Add export mode (disables backdrop-filter, mask-image, ::before/::after watermarks)
   document.body.classList.add('pdf-export');
   // Scroll to top so html2canvas captures from origin
@@ -2695,7 +4920,7 @@ async function buildPDFBlob(){
     document.body.classList.remove('pdf-export');
     state.equipment.forEach(eq=>{const r=getRecord(eq.id);r.open=prevOpen[eq.id];});
     state.collapsedGroups=prevCollapse;
-    if(wasTab&&wasTab!=='inspection') document.querySelector('.tab[data-tab="'+wasTab+'"]').click();
+    if(wasTab&&wasTab!=='inspection') switchTab(wasTab);
     renderInspection();
   }
   return blob;
@@ -2744,10 +4969,10 @@ async function emailReport(){
   const body =
 `SAMSIC GSE Daily Inspection
 Date: ${state.selectedDate}
-Agent: ${state.meta.agent} (${state.meta.agentId})
+Agent: ${state.meta.agent}
+Role: ${state.meta.role||'—'}
 Shift: ${state.meta.shift}
 Station: ${state.meta.station}
-Supervisor: ${state.meta.supervisor}
 
 === OUT OF SERVICE (${oos.length}) ===
 ${oos.join('\n')||'None'}
@@ -2820,7 +5045,11 @@ function saveData(notify){syncMetaFromInputs(); saveState(); if(notify) flash('S
 loadLogo();
 hydrateMeta();
 renderAll();
+try{ updateLockButtonIcon(); }catch(e){}    // sync 🔒/🔓 with current admin state
 startFirebaseListeners();   // begin live sync
+
+// If URL contains ?qr=<id> show the QR submission form instead of the main app.
+checkQrUrl();
 
 document.addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault(); saveData(true);}
@@ -2853,242 +5082,31 @@ function updateStickyOffset(){
   if(!st) return;
   document.documentElement.style.setProperty('--sticky-h', st.offsetHeight + 'px');
 }
-checkQrUrl();
 window.addEventListener('resize', updateStickyOffset, {passive:true});
 new ResizeObserver(updateStickyOffset).observe(document.getElementById('sticky-top'));
 updateStickyOffset();
 
+// Hysteresis: enter compact at 140, exit at 40. The wide gap kills the
+// flicker that happens when shrinking the sticky-top changes scrollY
+// just enough to flip the threshold back. Also rAF-throttled.
+let __scrollT = false;
 window.addEventListener('scroll',()=>{
-  const st=document.getElementById('sticky-top');
-  if(st){
-    if(window.scrollY > 80) st.classList.add('compact'); else st.classList.remove('compact');
-    updateStickyOffset();
-  }
-  const fab=document.getElementById('fab-top');
-  if(window.scrollY > 600) fab.classList.add('show'); else fab.classList.remove('show');
-},{passive:true});
-
-
-/* ================================================================
-   QR CODE SYSTEM
-   QR_BASE_URL: set to GitHub Pages URL so QR codes work on phones.
-   ================================================================ */
-const QR_BASE_URL = 'https://jassouma2017-hue.github.io/gse-inspection';
-
-function qrHostMode(){
-  if(typeof QR_BASE_URL==='string' && QR_BASE_URL.trim()) return 'hosted';
-  if(location.protocol==='http:'||location.protocol==='https:') return 'live';
-  return 'plain';
-}
-function qrBaseUrl(){
-  if(qrHostMode()==='hosted') return QR_BASE_URL.trim().replace(/\?.*$/,'');
-  return (location.origin||'')+location.pathname;
-}
-function qrUrlFor(gseId){
-  if(qrHostMode()==='plain'){
-    const eq=state.equipment.find(e=>e.id===gseId);
-    return (eq&&eq.ref)?eq.ref:gseId;
-  }
-  // Use hash (#qr=) — Google Apps Script cannot strip hash fragments
-  return qrBaseUrl()+'#qr='+encodeURIComponent(gseId);
-}
-
-let __currentQrEqId=null;
-async function showQrCode(eqId){
-  const eq=state.equipment.find(e=>e.id===eqId);
-  if(!eq){flash('Equipment not found','#ef4444');return;}
-  __currentQrEqId=eqId;
-  if(typeof QRCode==='undefined'&&window.__libsReady){await window.__libsReady;}
-  if(typeof QRCode==='undefined'){flash('QR library not loaded','#ef4444');return;}
-  document.getElementById('qr-title').textContent=`${eq.name} — ${eq.ref||'(no ref)'}`;
-  const encoded=qrUrlFor(eqId);
-  document.getElementById('qr-info').innerHTML=`<b>${escapeHTML(eq.name)} • ${escapeHTML(eq.ref||'—')}</b>Scan to report an issue.<br><span style="font-family:monospace;font-size:10px;color:#a78bfa">${escapeHTML(encoded)}</span>`;
-  const cont=document.getElementById('qr-canvas');
-  cont.innerHTML='';
-  new QRCode(cont,{text:encoded,width:240,height:240,correctLevel:QRCode.CorrectLevel.H});
-  const bg=document.getElementById('qr-bg');
-  bg.style.display='flex';
-}
-function closeQrModal(){
-  document.getElementById('qr-bg').style.display='none';
-  __currentQrEqId=null;
-}
-function downloadQrPng(){
-  const eq=state.equipment.find(e=>e.id===__currentQrEqId);
-  const canvas=document.querySelector('#qr-canvas canvas');
-  if(!canvas||!eq)return;
-  const a=document.createElement('a');
-  a.href=canvas.toDataURL('image/png');
-  a.download=`QR_${eq.ref||eq.name}.png`;
-  a.click();
-}
-async function printAllQRCodes(){
-  if(typeof QRCode==='undefined'&&window.__libsReady){await window.__libsReady;}
-  if(typeof QRCode==='undefined'){flash('QR library not loaded','#ef4444');return;}
-  const win=window.open('','_blank');
-  if(!win){flash('Pop-up blocked — allow pop-ups and try again','#ef4444');return;}
-  let body=`<html><head><title>QR Labels</title><style>
-    body{margin:0;background:#fff;font-family:Arial,sans-serif}
-    .page{display:flex;flex-wrap:wrap;gap:12px;padding:20px}
-    .label{width:180px;text-align:center;border:1px solid #ddd;padding:10px;border-radius:8px;page-break-inside:avoid}
-    .label p{margin:4px 0;font-size:11px;color:#333}
-    .label b{font-size:13px}
-    @media print{.no-print{display:none}}
-  </style></head><body><div class="no-print" style="padding:10px;background:#f0f0f0;text-align:center"><button onclick="window.print()">🖨 Print</button></div><div class="page">`;
-  for(const eq of state.equipment){
-    const url=qrUrlFor(eq.id);
-    const div=document.createElement('div');
-    new QRCode(div,{text:url,width:160,height:160,correctLevel:QRCode.CorrectLevel.H});
-    await new Promise(r=>setTimeout(r,50));
-    const canvas=div.querySelector('canvas');
-    const img=canvas?canvas.toDataURL('image/png'):'';
-    body+=`<div class="label"><img src="${img}" width="160" height="160"><p><b>${eq.name}</b></p><p style="font-family:monospace;color:#7c3aed">${eq.ref||''}</p></div>`;
-  }
-  body+=`</div></body></html>`;
-  win.document.write(body);
-  win.document.close();
-}
-
-/* === QR SCAN FORM (hash #qr=id or ?qr=id in URL) === */
-function checkQrUrl(){
-  let qrId='';
-  if(location.hash&&location.hash.startsWith('#qr='))
-    qrId=decodeURIComponent(location.hash.slice(4));
-  if(!qrId) qrId=new URLSearchParams(location.search).get('qr')||'';
-  if(!qrId&&typeof window.__QR_ID==='string') qrId=window.__QR_ID;
-  if(!qrId) return false;
-  setupQrForm(qrId);
-  return true;
-}
-async function setupQrForm(qrId){
-  const app=document.getElementById('app-root');
-  if(app) app.style.display='none';
-  const st=document.getElementById('sticky-top');
-  if(st) st.style.display='none';
-  document.getElementById('qr-view').classList.add('show');
-  let eq=state.equipment.find(e=>e.id===qrId);
-  if(!eq){for(let i=0;i<25&&!eq;i++){await new Promise(r=>setTimeout(r,200));eq=state.equipment.find(e=>e.id===qrId);}}
-  if(!eq){
-    document.getElementById('qr-form-wrap').innerHTML=`<h1>QR Not Found</h1><p style="color:#a78bfa">This QR code is not linked to a known GSE.</p><button class="qr-submit-btn" onclick="location.href=location.pathname">Open App</button>`;
-    return;
-  }
-  document.getElementById('qr-gse').value=`${eq.name} • ${eq.ref||'—'}`;
-  document.getElementById('qr-gse').dataset.gseId=eq.id;
-  document.getElementById('qr-date').value=todayStr();
-  document.getElementById('qr-photo-input').addEventListener('change',onQrPhotoChange);
-  document.getElementById('qr-photo-camera').addEventListener('change',onQrPhotoChange);
-  populateQrGateOptions(eq);
-}
-function populateQrGateOptions(eq){
-  const sel=document.getElementById('qr-gate');
-  if(!sel)return;
-  const stations=(eq&&eq.stations&&eq.stations.length)?eq.stations:['SFO'];
-  const isSFO=stations.includes('SFO');
-  const isORD=stations.includes('ORD');
-  let html='<option value="">— Select a gate —</option>';
-  if(isSFO){
-    html+='<optgroup label="SFO — A Gates">'+['A1','A2','A3','A4','A5','A6','A7','A8','A9','A10','A12','A13','A14'].map(g=>`<option>${g}</option>`).join('')+'</optgroup>';
-    html+='<optgroup label="SFO — B Gates">'+['B4','B6','B7','B8','B9','B10','B11','B12','B14','B16','B18','B20','B21'].map(g=>`<option>${g}</option>`).join('')+'</optgroup>';
-    html+='<optgroup label="SFO — Other"><option>Plot 2</option><option>Plot 9</option><option>Plot 41</option><option>Plot 50</option><option>Hard Stand</option><option>Other</option></optgroup>';
-  }
-  if(isORD){
-    html+='<optgroup label="ORD — M Gates">'+Array.from({length:40},(_,i)=>`<option>M${i+1}</option>`).join('')+'</optgroup>';
-    html+='<optgroup label="ORD — Other"><option>Hard Stand</option><option>Other</option></optgroup>';
-  }
-  sel.innerHTML=html;
-}
-let __qrPhotos=[];
-function onQrPhotoChange(e){
-  Array.from(e.target.files).forEach(file=>{
-    const r=new FileReader();
-    r.onload=ev=>{
-      __qrPhotos.push(ev.target.result);
-      const prev=document.getElementById('qr-photo-preview');
-      const ph=document.createElement('div');ph.className='ph';
-      const idx=__qrPhotos.length-1;
-      ph.innerHTML=`<img src="${ev.target.result}"><button onclick="__qrPhotos.splice(${idx},1);this.parentNode.remove()">✕</button>`;
-      prev.appendChild(ph);
-    };
-    r.readAsDataURL(file);
+  if(__scrollT) return;
+  __scrollT = true;
+  requestAnimationFrame(()=>{
+    __scrollT = false;
+    const st = document.getElementById('sticky-top');
+    if(st){
+      const y = window.scrollY;
+      if(!st.classList.contains('compact') && y > 140) st.classList.add('compact');
+      else if(st.classList.contains('compact') && y < 40) st.classList.remove('compact');
+    }
+    const fab=document.getElementById('fab-top');
+    if(fab){
+      if(window.scrollY > 600) fab.classList.add('show'); else fab.classList.remove('show');
+    }
   });
-}
-async function submitQrReport(){
-  const agent=document.getElementById('qr-agent').value.trim();
-  const issue=document.getElementById('qr-issue').value.trim();
-  const gate=document.getElementById('qr-gate').value;
-  const gseId=document.getElementById('qr-gse').dataset.gseId;
-  const date=document.getElementById('qr-date').value;
-  if(!agent){alert('Please enter your name.');return;}
-  if(!issue){alert('Please describe the issue.');return;}
-  const btn=document.querySelector('.qr-submit-btn');
-  btn.disabled=true;btn.textContent='Submitting…';
-  const eq=state.equipment.find(e=>e.id===gseId);
-  if(eq){
-    const rec=state.reports.find(r=>r.date===date&&r.eqId===gseId)
-      ||(()=>{const n={date,eqId:gseId,items:{},status:'issues',agent,damage:[],notes:''};state.reports.push(n);return n;})();
-    rec.qrReports=rec.qrReports||[];
-    rec.qrReports.push({ts:new Date().toISOString(),agent,gate,issue,photos:__qrPhotos.slice()});
-    rec.status='issues';
-    saveState();
-  }
-  document.getElementById('qr-form-wrap').innerHTML=`<div class="qr-success"><div class="check">✅</div><h2>Report Submitted!</h2><p>Thank you, ${escapeHTML(agent)}. The issue has been recorded for ${escapeHTML(eq?eq.name:'this GSE')}.</p></div>`;
-}
+},{passive:true});
 </script>
-
-<!-- QR Code Modal -->
-<div id="qr-bg" class="modal-bg" onclick="if(event.target===this)closeQrModal()" style="display:none;align-items:center;justify-content:center">
-  <div class="modal" style="max-width:340px;width:92%">
-    <div class="modal-header"><span id="qr-title">QR Code</span><button class="modal-close" onclick="closeQrModal()">✕</button></div>
-    <div class="qr-modal-body">
-      <div class="qr-canvas-wrap"><div id="qr-canvas"></div></div>
-      <div class="qr-info" id="qr-info"></div>
-      <div class="qr-actions">
-        <button class="btn" onclick="downloadQrPng()">⬇ Download PNG</button>
-        <button class="btn" onclick="closeQrModal()">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- QR Scan Form View (shown when ?qr= or #qr= in URL) -->
-<div id="qr-view" class="qr-view">
-  <div class="qr-form-wrap">
-    <div id="qr-form-wrap">
-      <h1>Report an Issue</h1>
-      <div class="sub">GSE Equipment Report</div>
-      <div class="field">
-        <label>Equipment</label>
-        <input id="qr-gse" readonly>
-      </div>
-      <div class="field">
-        <label>Your Name</label>
-        <input id="qr-agent" placeholder="Full name" autocomplete="name">
-      </div>
-      <div class="field">
-        <label>Date</label>
-        <input id="qr-date" type="date">
-      </div>
-      <div class="field">
-        <label>Gate / Location</label>
-        <select id="qr-gate"><option value="">— Select a gate —</option></select>
-      </div>
-      <div class="field">
-        <label>Issue Description</label>
-        <textarea id="qr-issue" placeholder="Describe the issue or damage..."></textarea>
-      </div>
-      <div class="field">
-        <label>Add Photo(s)</label>
-        <input type="file" id="qr-photo-input" accept="image/*" multiple style="display:none">
-        <input type="file" id="qr-photo-camera" accept="image/*" capture="environment" style="display:none">
-        <div style="display:flex;gap:8px;margin-bottom:8px">
-          <button class="btn" type="button" onclick="document.getElementById('qr-photo-camera').click()">📷 Camera</button>
-          <button class="btn" type="button" onclick="document.getElementById('qr-photo-input').click()">🖼 Gallery</button>
-        </div>
-        <div class="qr-photo-preview" id="qr-photo-preview"></div>
-      </div>
-      <button class="qr-submit-btn" onclick="submitQrReport()">Submit Report</button>
-    </div>
-  </div>
-</div>
 </body>
 </html>
